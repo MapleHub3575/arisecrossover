@@ -267,3 +267,93 @@ AutoDungeontToggle = DungeontTab:CreateToggle({
 	end,
 })
 
+-- 🌸 Auto Farm วาปต่อเนื่องเร็วสุด + UI Toggle + Slider 20x
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+local enemiesFolder = workspace.__Main.__Enemies.Server -- Part ฝั่ง Server
+local AutoFarmEnabled = false
+local farmSpeed = 5 -- ความเร็ววาปเริ่มต้น
+
+-- ฟังก์ชันวาปไปหา Part ของศัตรูแบบห่าง ๆ
+local function teleportToEnemyPart(enemyPart, offsetDistance)
+if enemyPart and enemyPart.Parent then
+local direction = (enemyPart.Position - humanoidRootPart.Position).Unit
+local offset = direction * -offsetDistance + Vector3.new(0, 0, 0) -- Y offset เล็กน้อย
+local targetCFrame = CFrame.new(enemyPart.Position + offset)
+local tweenTime = math.clamp(1 / farmSpeed, 0.01, 0.3) -- เร็วสุดและ smooth
+local tweenInfo = TweenInfo.new(tweenTime, Enum.EasingStyle.Linear)
+local goal = {CFrame = targetCFrame}
+local tween = TweenService:Create(humanoidRootPart, tweenInfo, goal)
+tween:Play() -- ไม่รอ Completed
+end
+end
+
+-- หา Part ที่ใกล้ตัวที่สุด
+local function getClosestEnemyPart()
+local closestPart = nil
+local shortestDistance = math.huge
+
+for _, part in ipairs(enemiesFolder:GetChildren()) do
+    if part:IsA("BasePart") and part.Parent then
+        local distance = (part.Position - humanoidRootPart.Position).Magnitude
+        if distance < shortestDistance then
+            shortestDistance = distance
+            closestPart = part
+        end
+    end
+end
+return closestPart
+
+end
+
+-- Auto Farm แบบวาปและเช็ค HP ต่อเนื่อง
+local function autoFarm()
+while AutoFarmEnabled do
+local enemyPart = getClosestEnemyPart()
+if enemyPart and enemyPart.Parent then
+teleportToEnemyPart(enemyPart, 5)
+        local hp = enemyPart:FindFirstChild("HP")
+        if hp then
+            -- ลูปเช็ค HP แบบต่อเนื่องเร็วสุด
+            repeat task.wait(0.01) until hp.Value <= 0 or not AutoFarmEnabled
+        end
+    end
+    -- ไปหา Part ถัดไปทันที ไม่ต้องรอ
+end
+
+end
+
+-- 🌸 UI Toggle Auto Farm
+DungeontTab:CreateToggle({
+Name = "Auto Farm",
+CurrentValue = false,
+Flag = "AutoFarm",
+Callback = function(Value)
+AutoFarmEnabled = Value
+if Value then
+print("Auto Farm On")
+task.spawn(autoFarm)
+else
+print("Auto Farm Off")
+end
+end,
+})
+
+-- 🌸 Slider ความเร็ววาป (1-20x)
+DungeontTab:CreateSlider({
+Name = "Farm Speed",
+Range = {1, 20},
+Increment = 1,
+Suffix = "",
+CurrentValue = farmSpeed,
+Flag = "FarmSpeed",
+Callback = function(Value)
+farmSpeed = Value
+print("Farm Speed = " .. Value)
+end,
+})
