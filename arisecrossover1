@@ -286,7 +286,7 @@ local function teleportToEnemyPart(enemyPart, offsetDistance)
         local direction = (enemyPart.Position - humanoidRootPart.Position).Unit
         local offset = direction * -offsetDistance + Vector3.new(0, 0, 0) -- Y offset เล็กน้อย
         local targetCFrame = CFrame.new(enemyPart.Position + offset)
-        local tweenTime = math.clamp(1 / farmSpeed, 0.05, 0.2)
+        local tweenTime = math.clamp(1 / farmSpeed, 0.1, 1)
         local tweenInfo = TweenInfo.new(tweenTime, Enum.EasingStyle.Linear)
         local goal = {CFrame = targetCFrame}
         local tween = TweenService:Create(humanoidRootPart, tweenInfo, goal)
@@ -301,7 +301,7 @@ local function getClosestEnemyPart()
     local shortestDistance = math.huge
 
     for _, part in ipairs(enemiesFolder:GetChildren()) do
-        if part:IsA("BasePart") and part.Parent then
+        if part:IsA("Part") and part.Parent then
             local distance = (part.Position - humanoidRootPart.Position).Magnitude
             if distance < shortestDistance then
                 shortestDistance = distance
@@ -326,7 +326,7 @@ local function autoFarm()
                 end
             end
         end
-        task.wait(0.05)
+        task.wait(0.01)
     end
 end
 
