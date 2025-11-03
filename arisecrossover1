@@ -267,8 +267,6 @@ AutoDungeontToggle = DungeontTab:CreateToggle({
 	end,
 })
 
--- 🌸 Auto Farm ลื่นต่อเนื่อง + ป้องกันค้าง + UI Toggle + Slider 20x
--- 🌸 Auto Farm แบบวาป + เช็ค HP
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 
@@ -329,6 +327,18 @@ local function autoFarm()
         task.wait(0.01)
     end
 end
+
+-- 🔄 ให้ระบบรีเชื่อมต่อหลังรีเกิด
+player.CharacterAdded:Connect(function(newChar)
+	task.wait(1) -- รอให้โหลดครบก่อน
+	character = newChar
+	humanoidRootPart = newChar:WaitForChild("HumanoidRootPart")
+	print("🔁 Character respawned")
+
+	if AutoFarmEnabled then
+		task.spawn(autoFarm)
+	end
+end)
 
 -- 🌸 UI Toggle Auto Farm
 DungeontTab:CreateToggle({
