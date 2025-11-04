@@ -156,64 +156,111 @@ MainTab:CreateToggle({
     end,
 })
 
-local TeleportTab = Window:CreateTab("Teleport", 4483362458) -- ชื่อ tab + ไอคอน
+local TeleportTab = Window:CreateTab("Teleport", 4483362458)
 
-local TeleportSection = TeleportTab:CreateSection("Teleport Even")
+--------------------------------------------------
+-- 🌴 EVENT WORLD 1
+--------------------------------------------------
+local TeleportSection1 = TeleportTab:CreateSection("TeleportEvent World 1")
 
-local EvenPositions = {
-    {Name = "Jeju Island", Position = Vector3.new(4016.08643, 48.6075211, 3350.37573, -0.890833497, 0.000231631813, -0.454329818, 0.000271966739, 0.99999994, -2.34307154e-05, 0.454329818, -0.000144435471, -0.890833497)},
-	{Name = "Halloween Island", Position = Vector3.new(-295.354584, 20.6939487, -1739.28699, -0.322892904, 0, -0.946435511, 0, 1, 0, 0.946435511, 0, -0.322892904)}
+local EventWorld1Positions = {
+    {Name = "Jeju Island", Position = Vector3.new(4016.08643, 48.6075211, 3350.37573)},
+    {Name = "Halloween Island", Position = Vector3.new(-295.354584, 20.6939487, -1739.28699)},
 }
 
-local function teleportPlayer(position)
-    local player = game.Players.LocalPlayer
-    if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-        player.Character.HumanoidRootPart.CFrame = CFrame.new(position)
-    end
-end
-
-for _, world in ipairs(EvenPositions) do
+for _, world in ipairs(EventWorld1Positions) do
     TeleportTab:CreateButton({
         Name = world.Name,
         Callback = function()
-            teleportPlayer(world.Position)
+            local player = game.Players.LocalPlayer
+            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                player.Character.HumanoidRootPart.CFrame = CFrame.new(world.Position)
+            end
         end
     })
 end
 
-local TeleportSection = TeleportTab:CreateSection("Teleport Settings")
+--------------------------------------------------
+-- 🎃 EVENT WORLD 2
+--------------------------------------------------
+local TeleportSection2 = TeleportTab:CreateSection("TeleportEvent World 2")
 
--- กำหนดพิกัดของแต่ละโลกตามลำดับที่ส่งมา
-local worldPositions = {
-    {Name = "SoloWorld", Position = Vector3.new(452.069458, 15.2470932, -22.7720184, 1, 0, 0, 0, 1, 0, 0, 0, 1)},
-    {Name = "Grass Village", Position = Vector3.new(-3372.71191, 30.0344715, 2252.61719, -1.1920929e-07, 0, 1.00000012, 0, 1, 0, -1.00000012, 0, -1.1920929e-07)},
+local EventWorld2Positions = {
+    {Name = "Halloween Island", Position = Vector3.new(-367.087646484375, 40.386661529541016, -1956.859619140625)},
+}
+
+for _, world in ipairs(EventWorld2Positions) do
+    TeleportTab:CreateButton({
+        Name = world.Name,
+        Callback = function()
+            local player = game.Players.LocalPlayer
+            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                player.Character.HumanoidRootPart.CFrame = CFrame.new(world.Position)
+            end
+        end
+    })
+end
+
+--------------------------------------------------
+-- 🌎 WORLD 1
+--------------------------------------------------
+local TeleportSection3 = TeleportTab:CreateSection("World 1")
+
+local World1Positions = {
+    {Name = "SoloWorld", Position = Vector3.new(452.069458, 15.2470932, -22.7720184)},
+    {Name = "Grass Village", Position = Vector3.new(-3372.71191, 30.0344715, 2252.61719)},
     {Name = "OPWorld", Position = Vector3.new(-2844.155517578125, 50.02361297607422, -2016.807373046875)},
-    {Name = "BleachWorld", Position = Vector3.new(2815.10229, 8.5139246, -2734.53516, -0.624588609, 0, -0.780953944, 0, 1, 0, 0.780953944, 0, -0.624588609)},
-    {Name = "BCWorld", Position = Vector3.new(196.180267, 40.2076797, 4297.66455, 0.116746604, 0, 0.993161798, 0, 1, 0, -0.993161798, 0, 0.116746604)},
-    {Name = "Nipon City", Position = Vector3.new(192.605652, 15.2705383, -4293.87109, 0, 0, -1, 0, 1, 0, 1, 0, 0)},
-    {Name = "Mori Town", Position = Vector3.new(4817.64258, 20.8282547, -158.618042, 0, 0, 1, 0, 1, -0, -1, 0, 0)},
-    {Name = "XZ City", Position = Vector3.new(-2561.15479, 30.2231064, 5871.14941, 0.769067228, 0.639167905, 6.40749931e-06, 6.40749931e-06, -1.77621841e-05, 1, 0.639167905, -0.769067287, -1.77621841e-05)},
-    {Name = "OPMWorld", Position = Vector3.new(3321.18042, 20.2300873, 6384.54492, 4.12464142e-05, -0.889894366, 0.456166923, 1.00000012, 4.12464142e-05, -9.99867916e-06, -9.99867916e-06, 0.456166923, 0.889894247)},
-    {Name = "DanWorld", Position = Vector3.new(-3383.6604, 25.4620323, -84.0994873, 0.0127771497, 0, 0.999918342, 0, 1, 0, -0.999918342, 0, 0.0127771497)},
+    {Name = "BleachWorld", Position = Vector3.new(2815.10229, 8.5139246, -2734.53516)},
+    {Name = "BCWorld", Position = Vector3.new(196.180267, 40.2076797, 4297.66455)},
+    {Name = "Nipon City", Position = Vector3.new(192.605652, 15.2705383, -4293.87109)},
+    {Name = "Mori Town", Position = Vector3.new(4817.64258, 20.8282547, -158.618042)},
+    {Name = "XZ City", Position = Vector3.new(-2561.15479, 30.2231064, 5871.14941)},
+    {Name = "OPMWorld", Position = Vector3.new(3321.18042, 20.2300873, 6384.54492)},
+    {Name = "DanWorld", Position = Vector3.new(-3383.6604, 25.4620323, -84.0994873)},
 }
 
--- ฟังก์ชัน Teleport
-local function teleportPlayer(position)
-    local player = game.Players.LocalPlayer
-    if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-        player.Character.HumanoidRootPart.CFrame = CFrame.new(position)
-    end
-end
-
--- สร้างปุ่มโลกตามลำดับ
-for _, world in ipairs(worldPositions) do
+for _, world in ipairs(World1Positions) do
     TeleportTab:CreateButton({
         Name = world.Name,
         Callback = function()
-            teleportPlayer(world.Position)
+            local player = game.Players.LocalPlayer
+            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                player.Character.HumanoidRootPart.CFrame = CFrame.new(world.Position)
+            end
         end
     })
 end
+
+--------------------------------------------------
+-- 🌍 WORLD 2
+--------------------------------------------------
+local TeleportSection4 = TeleportTab:CreateSection("World 2")
+
+local World2Positions = {
+    {Name = "1", Position = Vector3.new(-241.06199645996094, 15.942999839782715, -13.78600025177002)},
+    {Name = "2", Position = Vector3.new(-5225.88671875, 35.88656234741211, -2923.06201171875)},
+    {Name = "3", Position = Vector3.new(735.7350463867188, 58.68924331665039, 5018.86083984375)},
+    {Name = "4", Position = Vector3.new(-6852.6513671875, 80.42222595214844, 1596.4384765625)},
+    {Name = "5", Position = Vector3.new(5119.162109375, 101.46529388427734, 36.499000549316406)},
+    {Name = "6", Position = Vector3.new(-9007.994140625, 85.90940856933594, -1793.15625)},
+    {Name = "7", Position = Vector3.new(-4769.32373046875, 91.6708984375, -8029.35986328125)},
+    {Name = "8", Position = Vector3.new(2589.732177734375, 91.97673797607422, -4194.45068359375)},
+    {Name = "9", Position = Vector3.new(-4194.46240234375, 120.6724624633789, 4690.453125)},
+    {Name = "10", Position = Vector3.new(3715.7470703125, 128.0664520263672, 3817.377685546875)},
+}
+
+for _, world in ipairs(World2Positions) do
+    TeleportTab:CreateButton({
+        Name = world.Name,
+        Callback = function()
+            local player = game.Players.LocalPlayer
+            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                player.Character.HumanoidRootPart.CFrame = CFrame.new(world.Position)
+            end
+        end
+    })
+end
+
 
 local DungeontTab = Window:CreateTab("Dungeont", 4483362458)
 local DungeontSection = DungeontTab:CreateSection("Dungeont Settings")
@@ -276,7 +323,7 @@ local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 
 local enemiesFolder = workspace.__Main.__Enemies.Server
 local AutoFarmEnabled = false
-local farmSpeed = 3
+local farmSpeed = 5
 
 -- 🌀 ฟังก์ชันวาร์ปไปหา Part ศัตรู
 local function teleportToEnemyPart(enemyPart, offsetDistance)
