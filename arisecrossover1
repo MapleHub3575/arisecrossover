@@ -276,7 +276,7 @@ local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 
 local enemiesFolder = workspace.__Main.__Enemies.Server
 local AutoFarmEnabled = false
-local farmSpeed = 5
+local farmSpeed = 3
 
 -- 🌀 ฟังก์ชันวาร์ปไปหา Part ศัตรู
 local function teleportToEnemyPart(enemyPart, offsetDistance)
