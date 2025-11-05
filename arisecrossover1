@@ -331,13 +331,19 @@ local function teleportToEnemyPart(enemyPart, offsetDistance)
 	if not (humanoidRootPart and humanoidRootPart.Parent) then return end
 
 	local direction = (enemyPart.Position - humanoidRootPart.Position).Unit
-	local targetPos = enemyPart.Position - direction * offsetDistance + Vector3.new(0, 0, 0)
-	local tweenTime = math.clamp(1 / farmSpeed, 0.1, 1)
-	local tweenInfo = TweenInfo.new(tweenTime, Enum.EasingStyle.Linear)
-	local tween = TweenService:Create(humanoidRootPart, tweenInfo, {CFrame = CFrame.new(targetPos)})
+	local distance = (enemyPart.Position - humanoidRootPart.Position).Magnitude
+	local targetPos = enemyPart.Position - direction * offsetDistance
 
-	tween:Play()
-	task.wait(tweenTime)
+	-- 💡 ถ้าไกลเกิน 200 stud ให้เทเลพอร์ตทันทีแทน Tween
+	if distance > 200 then
+		humanoidRootPart.CFrame = CFrame.new(targetPos)
+	else
+		local tweenTime = math.clamp(1 / farmSpeed, 0.1, 1)
+		local tweenInfo = TweenInfo.new(tweenTime, Enum.EasingStyle.Linear)
+		local tween = TweenService:Create(humanoidRootPart, tweenInfo, {CFrame = CFrame.new(targetPos)})
+		tween:Play()
+		task.wait(tweenTime)
+	end
 end
 
 -- 🔎 หา Part ศัตรูที่ใกล้ตัวที่สุด (กรอง HP<=0)
