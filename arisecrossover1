@@ -60,7 +60,7 @@ local AutoSellEnabled = false
 local connection -- ไว้เก็บ event เพื่อหยุดตอนปิดระบบ
 
 INFOSTab:CreateToggle({
-    Name = "Auto Sell (Rank 1-10)",
+    Name = "Auto Sell (Rank E-M+)",
     CurrentValue = false,
     Flag = "AutoSell",
     Callback = function(Value)
