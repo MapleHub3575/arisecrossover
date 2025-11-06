@@ -49,6 +49,77 @@ INFOSTab:CreateButton({
     end,
 })
 
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local player = Players.LocalPlayer
+local BridgeEvent = ReplicatedStorage:WaitForChild("BridgeNet2"):WaitForChild("dataRemoteEvent")
+
+local SellpetSection = INFOSTab:CreateSection("Auto Sell Settings")
+
+local AutoSellEnabled = false
+local connection -- ไว้เก็บ event เพื่อหยุดตอนปิดระบบ
+
+INFOSTab:CreateToggle({
+    Name = "Auto Sell (Rank 1-10)",
+    CurrentValue = false,
+    Flag = "AutoSell",
+    Callback = function(Value)
+        AutoSellEnabled = Value
+
+        if AutoSellEnabled then
+            -- หาโฟลเดอร์ Pets
+            local petsFolder = player:FindFirstChild("leaderstats")
+            if petsFolder then
+                petsFolder = petsFolder:FindFirstChild("Inventory")
+                if petsFolder then
+                    petsFolder = petsFolder:FindFirstChild("Pets")
+                end
+            end
+
+            if not petsFolder then
+                return
+            end
+
+            -- ฟังก์ชันขาย pet ที่ rank 1–10
+            local function sellLowRankPets(pet)
+                if not AutoSellEnabled then return end
+                if pet and pet:IsA("Folder") then
+                    local rankValue = pet:GetAttribute("Rank")
+                    if typeof(rankValue) == "number" and rankValue >= 1 and rankValue <= 10 then
+                        local args = {
+                            [1] = {
+                                [1] = {
+                                    ["Event"] = "SellPet",
+                                    ["Pets"] = { pet.Name }
+                                },
+                                [2] = "\7"
+                            }
+                        }
+                        BridgeEvent:FireServer(unpack(args))
+                    end
+                end
+            end
+
+            -- ขาย pet ที่มีอยู่แล้ว (ถ้ามี)
+            for _, pet in ipairs(petsFolder:GetChildren()) do
+                sellLowRankPets(pet)
+            end
+
+            -- ตรวจทุกครั้งที่มี pet ใหม่เพิ่มเข้ามา
+            connection = petsFolder.ChildAdded:Connect(function(pet)
+                sellLowRankPets(pet)
+            end)
+
+        else
+            -- ปิดระบบ auto sell
+            if connection then
+                connection:Disconnect()
+                connection = nil
+            end
+        end
+    end,
+})
+
 local MainTab = Window:CreateTab("Main", 4483362458) -- ชื่อ tab + ไอคอน
 local MainSection = MainTab:CreateSection("Farming Settings")
 
@@ -545,7 +616,7 @@ local function autoReplay()
 
 		-- ถ้าไม่มีมอนเหลือ → รอเช็กซ้ำอีกรอบก่อนเริ่มใหม่
 		if not enemiesAlive then
-			task.wait(5) -- ✅ หน่วงเวลาเช็กซ้ำกันบั๊ก
+			task.wait(3) -- ✅ หน่วงเวลาเช็กซ้ำกันบั๊ก
 			local stillNoEnemies = true
 			for _, enemy in ipairs(enemiesFolder:GetChildren()) do
 				if enemy:IsA("Model") or enemy:IsA("Part") then
