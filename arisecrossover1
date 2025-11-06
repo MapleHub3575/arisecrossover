@@ -280,14 +280,14 @@ local TeleportSection3 = TeleportTab:CreateSection("World 1")
 local World1Positions = {
     {Name = "SoloWorld", Position = Vector3.new(452.069458, 15.2470932, -22.7720184)},
     {Name = "Grass Village", Position = Vector3.new(-3372.71191, 30.0344715, 2252.61719)},
-    {Name = "OPWorld", Position = Vector3.new(-2844.155517578125, 50.02361297607422, -2016.807373046875)},
-    {Name = "BleachWorld", Position = Vector3.new(2815.10229, 8.5139246, -2734.53516)},
-    {Name = "BCWorld", Position = Vector3.new(196.180267, 40.2076797, 4297.66455)},
+    {Name = "Brum Lsland", Position = Vector3.new(-2844.155517578125, 50.02361297607422, -2016.807373046875)},
+    {Name = "Faceheal Town", Position = Vector3.new(2815.10229, 8.5139246, -2734.53516)},
+    {Name = "Lucky Kingdom", Position = Vector3.new(196.180267, 40.2076797, 4297.66455)},
     {Name = "Nipon City", Position = Vector3.new(192.605652, 15.2705383, -4293.87109)},
     {Name = "Mori Town", Position = Vector3.new(4817.64258, 20.8282547, -158.618042)},
-    {Name = "XZ City", Position = Vector3.new(-2561.15479, 30.2231064, 5871.14941)},
-    {Name = "OPMWorld", Position = Vector3.new(3321.18042, 20.2300873, 6384.54492)},
-    {Name = "DanWorld", Position = Vector3.new(-3383.6604, 25.4620323, -84.0994873)},
+    {Name = "Dragon City", Position = Vector3.new(-2561.15479, 30.2231064, 5871.14941)},
+    {Name = "XZ City", Position = Vector3.new(3321.18042, 20.2300873, 6384.54492)},
+    {Name = "Kindama City", Position = Vector3.new(-3383.6604, 25.4620323, -84.0994873)},
 }
 
 for _, world in ipairs(World1Positions) do
@@ -308,17 +308,17 @@ end
 local TeleportSection4 = TeleportTab:CreateSection("World 2")
 
 local World2Positions = {
-    {Name = "1", Position = Vector3.new(-241.06199645996094, 15.942999839782715, -13.78600025177002)},
-    {Name = "2", Position = Vector3.new(-5225.88671875, 35.88656234741211, -2923.06201171875)},
-    {Name = "3", Position = Vector3.new(-1289.09521484375, 47.42665481567383, -5173.0888671875)},
-    {Name = "4", Position = Vector3.new(735.7350463867188, 58.68924331665039, 5018.86083984375)},
-    {Name = "5", Position = Vector3.new(-6852.6513671875, 80.42222595214844, 1596.4384765625)},
-    {Name = "6", Position = Vector3.new(5119.162109375, 101.46529388427734, 36.499000549316406)},
-    {Name = "7", Position = Vector3.new(-9007.994140625, 85.90940856933594, -1793.15625)},
-    {Name = "8", Position = Vector3.new(-4769.32373046875, 91.6708984375, -8029.35986328125)},
-    {Name = "9", Position = Vector3.new(2589.732177734375, 91.97673797607422, -4194.45068359375)},
-    {Name = "10", Position = Vector3.new(-4194.46240234375, 120.6724624633789, 4690.453125)},
-    {Name = "11", Position = Vector3.new(3715.7470703125, 128.0664520263672, 3817.377685546875)},
+    {Name = "Hunters City", Position = Vector3.new(-241.06199645996094, 15.942999839782715, -13.78600025177002)},
+    {Name = "Nen City", Position = Vector3.new(-5225.88671875, 35.88656234741211, -2923.06201171875)},
+    {Name = "Hurricane", Position = Vector3.new(-1289.09521484375, 47.42665481567383, -5173.0888671875)},
+    {Name = "Cursed High", Position = Vector3.new(735.7350463867188, 58.68924331665039, 5018.86083984375)},
+    {Name = "Slayer's Village", Position = Vector3.new(-6852.6513671875, 80.42222595214844, 1596.4384765625)},
+    {Name = "Kaiju City", Position = Vector3.new(5119.162109375, 101.46529388427734, 36.499000549316406)},
+    {Name = "Wall Kingdom", Position = Vector3.new(-9007.994140625, 85.90940856933594, -1793.15625)},
+    {Name = "Shield Kingdom", Position = Vector3.new(-4769.32373046875, 91.6708984375, -8029.35986328125)},
+    {Name = "Ghoul City", Position = Vector3.new(2589.732177734375, 91.97673797607422, -4194.45068359375)},
+    {Name = "Eminance Kingdom", Position = Vector3.new(-4194.46240234375, 120.6724624633789, 4690.453125)},
+    {Name = "Monach City", Position = Vector3.new(3715.7470703125, 128.0664520263672, 3817.377685546875)},
 }
 
 for _, world in ipairs(World2Positions) do
