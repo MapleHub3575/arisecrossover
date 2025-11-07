@@ -386,16 +386,6 @@ AutoDungeontToggle = DungeontTab:CreateToggle({
 	end,
 })
 
-local Players = game:GetService("Players")
-local TweenService = game:GetService("TweenService")
-
-local player = Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-
-local enemiesFolder = workspace.__Main.__Enemies.Server
-local AutoFarmEnabled = false
-local farmSpeed = 3
 -- 🌀 AUTO FARM DUNGEON (Stable Full Version)
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
@@ -681,11 +671,4 @@ end
 DungeontTab:CreateToggle({
 	Name = "Auto Replay",
 	CurrentValue = false,
-	Flag = "AutoReplay",
-	Callback = function(Value)
-		AutoReplayEnabled = Value
-		if Value then
-			task.spawn(autoReplay)
-		end
-	end,
-})
+	Flag
