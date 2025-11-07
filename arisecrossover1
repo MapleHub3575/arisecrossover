@@ -92,7 +92,7 @@ INFOSTab:CreateToggle({
                                     ["Event"] = "SellPet",
                                     ["Pets"] = { pet.Name }
                                 },
-                                [2] = "\6"
+                                [2] = "\7"
                             }
                         }
                         BridgeEvent:FireServer(unpack(args))
@@ -552,7 +552,7 @@ local function buyTicket()
 				["Event"] = "DungeonAction",
 				["Action"] = "BuyTicket"
 			},
-			[2] = "\3"
+			[2] = "\4"
 		}
 	}
 	Remote:FireServer(unpack(args))
@@ -565,7 +565,7 @@ local function createDungeon()
 				["Event"] = "DungeonAction",
 				["Action"] = "Create"
 			},
-			[2] = "\3"
+			[2] = "\4"
 		}
 	}
 	Remote:FireServer(unpack(args))
@@ -578,7 +578,7 @@ local function startDungeon()
 				["Event"] = "DungeonAction",
 				["Action"] = "Start"
 			},
-			[2] = "\3"
+			[2] = "\4"
 		}
 	}
 	Remote:FireServer(unpack(args))
