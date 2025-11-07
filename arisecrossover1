@@ -497,21 +497,28 @@ DungeontTab:CreateSlider({
 })
 
 
+-- 🌸 Auto Dungeon System (By Maple)
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 local Players = game:GetService("Players")
 
 local player = Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
-local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+-- 🔹 ฟังก์ชันดึง HumanoidRootPart ปลอดภัย
+local function getHRP()
+	local char = player.Character or player.CharacterAdded:Wait()
+	return char:FindFirstChild("HumanoidRootPart")
+end
 
 local Remote = ReplicatedStorage:WaitForChild("BridgeNet2"):WaitForChild("dataRemoteEvent")
 
 -- ✅ ตัวแปรหลัก
 local AutoJoinEnabled = false
 local AutoReplayEnabled = false
-local joinRange = 25 -- ระยะใกล้ประตูดัน
+local joinRange = 25
 local enemiesFolder = Workspace:WaitForChild("__Main"):WaitForChild("__Enemies"):WaitForChild("Server")
+local CreatingDungeon = false -- ป้องกันซ้อน
 
 -- 🌸 ฟังก์ชันทั่วไป
 local function isInDungeon()
@@ -527,15 +534,16 @@ local function isNearDungeonDoor()
 	local door = Workspace:FindFirstChild("__Main")
 	if door and door:FindFirstChild("__Dungeon") then
 		local dungeon = door.__Dungeon:FindFirstChild("Dungeon")
-		if dungeon and humanoidRootPart then
-			local distance = (humanoidRootPart.Position - dungeon.Position).Magnitude
+		local hrp = getHRP()
+		if dungeon and hrp then
+			local distance = (hrp.Position - dungeon.Position).Magnitude
 			return distance <= joinRange
 		end
 	end
 	return false
 end
 
--- 🌸 ฟังก์ชันเกี่ยวกับดันเจี้ยน
+-- 🌸 ฟังก์ชันหลักของระบบดันเจี้ยน
 local function buyTicket()
 	local args = {
 		[1] = {
@@ -576,6 +584,21 @@ local function startDungeon()
 	Remote:FireServer(unpack(args))
 end
 
+-- 🌸 รวมฟังก์ชันสร้าง + เริ่มในครั้งเดียว
+local function safeCreateAndStartDungeon()
+	if CreatingDungeon then return end
+	CreatingDungeon = true
+
+	buyTicket()
+	task.wait(1)
+	createDungeon()
+	task.wait(2)
+	startDungeon()
+	task.wait(5)
+
+	CreatingDungeon = false
+end
+
 -- 🌸 ระบบ Auto Join Dungeon
 DungeontTab:CreateToggle({
 	Name = "Auto Join Dungeon",
@@ -586,15 +609,8 @@ DungeontTab:CreateToggle({
 		if Value then
 			task.spawn(function()
 				while AutoJoinEnabled do
-					if not isInDungeon() then
-						if isNearDungeonDoor() then
-							buyTicket()
-							task.wait(1)
-							createDungeon()
-							task.wait(1)
-							startDungeon()
-							task.wait(5)
-						end
+					if not isInDungeon() and isNearDungeonDoor() then
+						safeCreateAndStartDungeon()
 					end
 					task.wait(3)
 				end
@@ -606,7 +622,6 @@ DungeontTab:CreateToggle({
 -- 🌸 ระบบ Auto Replay (เริ่มใหม่เมื่อมอนไม่เหลือ)
 local function autoReplay()
 	while AutoReplayEnabled do
-		-- ตรวจว่ามีมอนเหลือไหม
 		local enemiesAlive = false
 		for _, enemy in ipairs(enemiesFolder:GetChildren()) do
 			if enemy:IsA("Model") or enemy:IsA("Part") then
@@ -615,9 +630,8 @@ local function autoReplay()
 			end
 		end
 
-		-- ถ้าไม่มีมอนเหลือ → รอเช็กซ้ำอีกรอบก่อนเริ่มใหม่
 		if not enemiesAlive then
-			task.wait(3) -- ✅ หน่วงเวลาเช็กซ้ำกันบั๊ก
+			task.wait(3)
 			local stillNoEnemies = true
 			for _, enemy in ipairs(enemiesFolder:GetChildren()) do
 				if enemy:IsA("Model") or enemy:IsA("Part") then
@@ -627,12 +641,7 @@ local function autoReplay()
 			end
 
 			if stillNoEnemies then
-				buyTicket()
-				task.wait(1)
-				createDungeon()
-				task.wait(2)
-				startDungeon()
-				task.wait(5)
+				safeCreateAndStartDungeon()
 			end
 		end
 
