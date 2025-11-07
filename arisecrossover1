@@ -85,7 +85,7 @@ INFOSTab:CreateToggle({
                 if not AutoSellEnabled then return end
                 if pet and pet:IsA("Folder") then
                     local rankValue = pet:GetAttribute("Rank")
-                    if typeof(rankValue) == "number" and rankValue >= 1 and rankValue <= 12 then
+                    if typeof(rankValue) == "number" and rankValue >= 1 and rankValue <= 15 then
                         local args = {
                             [1] = {
                                 [1] = {
