@@ -397,20 +397,31 @@ local enemiesFolder = workspace.__Main.__Enemies.Server
 local AutoFarmEnabled = false
 local farmSpeed = 3
 
+-- 🌀 AUTO FARM DUNGEON (Stable Full Version)
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+local enemiesFolder = workspace.__Main.__Enemies.Server -- 🔁 โฟลเดอร์ศัตรู
+local AutoFarmEnabled = false
+local farmSpeed = 5
+
 -- 🌀 ฟังก์ชันวาร์ปไปหา Part ศัตรู
 local function teleportToEnemyPart(enemyPart, offsetDistance)
 	if not (enemyPart and enemyPart.Parent and enemyPart:IsDescendantOf(workspace)) then return end
-	if not (humanoidRootPart and humanoidRootPart.Parent) then return end
+	if not (humanoidRootPart and humanoidRootPart.Parent == character) then return end
 
 	local direction = (enemyPart.Position - humanoidRootPart.Position).Unit
 	local distance = (enemyPart.Position - humanoidRootPart.Position).Magnitude
 	local targetPos = enemyPart.Position - direction * offsetDistance
 
-	-- 💡 ถ้าไกลเกิน 200 stud ให้เทเลพอร์ตทันทีแทน Tween
+	-- 💡 ถ้าไกลเกิน 300 stud ให้เทเลพอร์ตทันที
 	if distance > 300 then
 		humanoidRootPart.CFrame = CFrame.new(targetPos)
 	else
-		local tweenTime = math.clamp(1 / farmSpeed, 0.1, 1)
+		local tweenTime = math.clamp(distance / (farmSpeed * 100), 0.1, 1)
 		local tweenInfo = TweenInfo.new(tweenTime, Enum.EasingStyle.Linear)
 		local tween = TweenService:Create(humanoidRootPart, tweenInfo, {CFrame = CFrame.new(targetPos)})
 		tween:Play()
@@ -418,15 +429,15 @@ local function teleportToEnemyPart(enemyPart, offsetDistance)
 	end
 end
 
--- 🔎 หา Part ศัตรูที่ใกล้ตัวที่สุด (กรอง HP<=0)
+-- 🔎 หา Part ศัตรูที่ใกล้ตัวที่สุด (HP > 0)
 local function getClosestEnemyPart()
-	local closestPart = nil
+	local closestPart
 	local shortestDistance = math.huge
 
 	for _, part in ipairs(enemiesFolder:GetChildren()) do
 		if part:IsA("Part") and part:IsDescendantOf(workspace) then
 			local hp = part:GetAttribute("HP")
-			if hp and hp > 0 then -- ✅ อ่านจาก Attribute
+			if hp and hp > 0 then
 				local distance = (part.Position - humanoidRootPart.Position).Magnitude
 				if distance < shortestDistance then
 					shortestDistance = distance
@@ -439,26 +450,44 @@ local function getClosestEnemyPart()
 	return closestPart
 end
 
--- ⚔️ Auto Farm หลัก
+-- ⚔️ ฟังก์ชันหลัก Auto Farm
 local function autoFarm()
 	while AutoFarmEnabled do
+		if not (humanoidRootPart and humanoidRootPart.Parent == character) then
+			task.wait(1)
+			continue
+		end
+
 		local enemyPart = getClosestEnemyPart()
 		if enemyPart then
 			teleportToEnemyPart(enemyPart, 5)
-
-			-- ✅ ใช้ Attribute แทน FindFirstChild
 			while AutoFarmEnabled do
+				if not (enemyPart and enemyPart.Parent) then break end
 				local hp = enemyPart:GetAttribute("HP")
 				if not hp or hp <= 0 then
-					break -- ตายแล้ว หยุดฟาร์มตัวนี้
+					task.wait(0.2)
+					break
 				end
 				task.wait(0.05)
 			end
 		else
-			task.wait(0.5) -- ไม่มีศัตรู
+			task.wait(0.5)
 		end
 		task.wait(0.05)
 	end
+end
+
+-- 🧠 ฟังก์ชันเริ่ม Auto Farm อย่างปลอดภัยหลังรีเกิด
+local function safeStartAutoFarm()
+	task.defer(function()
+		while true do
+			if AutoFarmEnabled and humanoidRootPart and humanoidRootPart.Parent == character then
+				task.spawn(autoFarm)
+				break
+			end
+			task.wait(1)
+		end
+	end)
 end
 
 -- 🔁 รีเชื่อมต่อหลังรีเกิด
@@ -466,8 +495,9 @@ player.CharacterAdded:Connect(function(newChar)
 	task.wait(1)
 	character = newChar
 	humanoidRootPart = newChar:WaitForChild("HumanoidRootPart")
+
 	if AutoFarmEnabled then
-		task.spawn(autoFarm)
+		safeStartAutoFarm()
 	end
 end)
 
@@ -484,7 +514,7 @@ DungeontTab:CreateToggle({
 	end,
 })
 
--- ⚡ ปรับความเร็วฟาร์ม
+-- ⚡ สไลด์ปรับความเร็วฟาร์ม
 DungeontTab:CreateSlider({
 	Name = "Farm Speed",
 	Range = {1, 10},
@@ -631,32 +661,4 @@ local function autoReplay()
 		end
 
 		if not enemiesAlive then
-			task.wait(3)
-			local stillNoEnemies = true
-			for _, enemy in ipairs(enemiesFolder:GetChildren()) do
-				if enemy:IsA("Model") or enemy:IsA("Part") then
-					stillNoEnemies = false
-					break
-				end
-			end
-
-			if stillNoEnemies then
-				safeCreateAndStartDungeon()
-			end
-		end
-
-		task.wait(3)
-	end
-end
-
-DungeontTab:CreateToggle({
-	Name = "Auto Replay",
-	CurrentValue = false,
-	Flag = "AutoReplay",
-	Callback = function(Value)
-		AutoReplayEnabled = Value
-		if Value then
-			task.spawn(autoReplay)
-		end
-	end,
-})
+			task.wait(
