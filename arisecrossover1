@@ -92,7 +92,7 @@ INFOSTab:CreateToggle({
                                     ["Event"] = "SellPet",
                                     ["Pets"] = { pet.Name }
                                 },
-                                [2] = "\7"
+                                [2] = "\6"
                             }
                         }
                         BridgeEvent:FireServer(unpack(args))
@@ -407,7 +407,7 @@ local function teleportToEnemyPart(enemyPart, offsetDistance)
 	local targetPos = enemyPart.Position - direction * offsetDistance
 
 	-- 💡 ถ้าไกลเกิน 200 stud ให้เทเลพอร์ตทันทีแทน Tween
-	if distance > 200 then
+	if distance > 300 then
 		humanoidRootPart.CFrame = CFrame.new(targetPos)
 	else
 		local tweenTime = math.clamp(1 / farmSpeed, 0.1, 1)
@@ -544,7 +544,7 @@ local function buyTicket()
 				["Event"] = "DungeonAction",
 				["Action"] = "BuyTicket"
 			},
-			[2] = "\4"
+			[2] = "\3"
 		}
 	}
 	Remote:FireServer(unpack(args))
@@ -557,7 +557,7 @@ local function createDungeon()
 				["Event"] = "DungeonAction",
 				["Action"] = "Create"
 			},
-			[2] = "\4"
+			[2] = "\3"
 		}
 	}
 	Remote:FireServer(unpack(args))
@@ -570,7 +570,7 @@ local function startDungeon()
 				["Event"] = "DungeonAction",
 				["Action"] = "Start"
 			},
-			[2] = "\4"
+			[2] = "\3"
 		}
 	}
 	Remote:FireServer(unpack(args))
