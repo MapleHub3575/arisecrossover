@@ -233,7 +233,7 @@ local AutoSellEnabled = false
 local connection -- ไว้เก็บ event เพื่อหยุดตอนปิดระบบ
 
 INFOSTab:CreateToggle({
-    Name = "Auto Sell (Rank E-UGM)",
+    Name = "Auto Sell (Rank E-UGM+)",
     CurrentValue = false,
     Flag = "AutoSell",
     Callback = function(Value)
