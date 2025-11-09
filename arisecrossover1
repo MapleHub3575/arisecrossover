@@ -16,7 +16,6 @@ local Window = Rayfield:CreateWindow({
     KeySystem = false
 })
 
-
 local INFOSTab = Window:CreateTab("INFOS", 4483362458)
 local INFOSSection = INFOSTab:CreateSection("INFOS Settings")
 
@@ -633,22 +632,34 @@ end
 
 --------------------------------------------------------
 -- 🧩 ฟังก์ชันวาร์ปไปศัตรู (XZ Offset + ป้องกันตกโลก)
---------------------------------------------------------
+-- 🧩 ฟังก์ชันวาร์ปไปศัตรู (XZ Offset + ป้องกันตกโลก + หาพื้น)
 local function teleportToEnemyPart(enemyPart, offsetDistance)
 	local hrp = getHRP()
-	if not (enemyPart and hrp and enemyPart:IsDescendantOf(workspace)) then return end
+	if not (enemyPart and hrp and enemyPart:IsDescendantOf(workspace)) then return false end
 
 	local direction = (enemyPart.Position - hrp.Position).Unit
 	local distance = (enemyPart.Position - hrp.Position).Magnitude
 
-	-- จุดเป้าหมาย: ยืนห่างในแนวนอน XZ
-	local targetPos = enemyPart.Position - Vector3.new(direction.X, 0, direction.Z) * offsetDistance
-	targetPos = Vector3.new(targetPos.X, hrp.Position.Y, targetPos.Z) -- รักษาความสูงเดิม
+	-- จุดเป้าหมายแนวนอน XZ (ยังไม่ใส่ Y)
+	local targetXZ = enemyPart.Position - Vector3.new(direction.X, 0, direction.Z) * offsetDistance
 
-	-- ถ้าไกลเกิน 300 stud หรือ Y < -10 → เทเลพอร์ตทันที
-	if distance > 300 or hrp.Position.Y < -10 then
+	-- 🔎 Raycast หาพื้นใต้ตำแหน่งเป้าหมาย
+	local rayOrigin = Vector3.new(targetXZ.X, enemyPart.Position.Y + 10, targetXZ.Z)
+	local rayDirection = Vector3.new(0, -100, 0)
+	local raycastParams = RaycastParams.new()
+	raycastParams.FilterDescendantsInstances = {enemyPart}
+	raycastParams.FilterType = Enum.RaycastFilterType.Exclude
+
+	local result = workspace:Raycast(rayOrigin, rayDirection, raycastParams)
+	local groundY = result and result.Position.Y or enemyPart.Position.Y
+
+	-- เพิ่มความสูงอีกนิดกันจมพื้น
+	local targetPos = Vector3.new(targetXZ.X, groundY + 3, targetXZ.Z)
+
+	-- ถ้าไกลเกินหรือ Y < -10 → วาร์ปทันที
+	if distance > 500 or hrp.Position.Y < -10 then
 		hrp.CFrame = CFrame.new(targetPos)
-		return
+		return false
 	end
 
 	-- Tween เคลื่อนที่นุ่มนวล
@@ -658,8 +669,9 @@ local function teleportToEnemyPart(enemyPart, offsetDistance)
 	currentTween = TweenService:Create(hrp, tweenInfo, {CFrame = CFrame.new(targetPos)})
 	currentTween:Play()
 	task.wait(tweenTime)
-end
 
+	return true
+end
 --------------------------------------------------------
 -- ⚔️ ฟังก์ชันหลัก Auto Farm
 --------------------------------------------------------
@@ -673,7 +685,13 @@ local function autoFarm()
 
 		local enemyPart = getClosestEnemyPart()
 		if enemyPart then
-			teleportToEnemyPart(enemyPart, teleportDistance)
+			local success = teleportToEnemyPart(enemyPart, teleportDistance)
+
+			-- ❌ ถ้าตกโลกหรือวาร์ปกลับ (return false) → ข้าม loop นี้ทันที
+			if not success then
+				task.wait(0.5)
+				continue
+			end
 
 			-- 🔁 ตีจนศัตรูตาย
 			while AutoFarmEnabled do
@@ -691,7 +709,6 @@ local function autoFarm()
 		task.wait(0.05)
 	end
 end
-
 --------------------------------------------------------
 -- ♻️ ฟังก์ชันเริ่มหลังรีเกิด
 --------------------------------------------------------
