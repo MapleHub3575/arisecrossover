@@ -1,1 +1,1119 @@
-local%20Rayfield%20%3D%20loadstring(game%3AHttpGet('https%3A%2F%2Fsirius.menu%2Frayfield'))()%0Alocal%20Window%20%3D%20Rayfield%3ACreateWindow(%7B%0A%20%20%20%20Name%20%3D%20%22Maple%20Hub%22%2C%0A%20%20%20%20LoadingTitle%20%3D%20%22Maple%20Hub%20Loading...%22%2C%0A%20%20%20%20LoadingSubtitle%20%3D%20%22by%20Piphoppat%22%2C%0A%20%20%20%20ConfigurationSaving%20%3D%20%7B%0A%20%20%20%20%20%20%20%20Enabled%20%3D%20true%2C%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20--%20%E2%9C%85%20%E0%B9%80%E0%B8%9B%E0%B8%B4%E0%B8%94%E0%B8%A3%E0%B8%B0%E0%B8%9A%E0%B8%9A%E0%B9%80%E0%B8%8B%E0%B8%9F%0A%20%20%20%20%20%20%20%20FolderName%20%3D%20%22MapleHub%22%2C%20%20%20%20%20%20%20--%20%F0%9F%93%82%20%E0%B8%8A%E0%B8%B7%E0%B9%88%E0%B8%AD%E0%B9%82%E0%B8%9F%E0%B8%A5%E0%B9%80%E0%B8%94%E0%B8%AD%E0%B8%A3%E0%B9%8C%E0%B8%A2%E0%B9%88%E0%B8%AD%E0%B8%A2%0A%20%20%20%20%20%20%20%20FileName%20%3D%20%22MapleConfig%22%20%20%20%20%20%20%20--%20%F0%9F%93%84%20%E0%B8%8A%E0%B8%B7%E0%B9%88%E0%B8%AD%E0%B9%84%E0%B8%9F%E0%B8%A5%E0%B9%8C%20config%0A%20%20%20%20%7D%2C%0A%20%20%20%20Discord%20%3D%20%7B%0A%20%20%20%20%20%20%20%20Enabled%20%3D%20false%2C%0A%20%20%20%20%20%20%20%20Invite%20%3D%20%22%22%2C%0A%20%20%20%20%20%20%20%20RememberJoins%20%3D%20false%0A%20%20%20%20%7D%2C%0A%20%20%20%20KeySystem%20%3D%20false%0A%7D)%0A%0Alocal%20INFOSTab%20%3D%20Window%3ACreateTab(%22INFOS%22%2C%204483362458)%0Alocal%20INFOSSection%20%3D%20INFOSTab%3ACreateSection(%22INFOS%20Settings%22)%0A%0Alocal%20SavedPosition%20--%20%E0%B9%80%E0%B8%81%E0%B9%87%E0%B8%9A%E0%B8%95%E0%B8%B3%E0%B9%81%E0%B8%AB%E0%B8%99%E0%B9%88%E0%B8%87%E0%B8%9C%E0%B8%B9%E0%B9%89%E0%B9%80%E0%B8%A5%E0%B9%88%E0%B8%99%0A%0AINFOSTab%3ACreateButton(%7B%0AName%20%3D%20%22Save%20Position%22%2C%0A%20%20%20%20Callback%20%3D%20function()%0A%20%20%20%20%20%20%20%20local%20player%20%3D%20game.Players.LocalPlayer%0A%20%20%20%20%20%20local%20Players%20%3D%20game%3AGetService(%22Players%22)%0Alocal%20TweenService%20%3D%20game%3AGetService(%22TweenService%22)%0Alocal%20ReplicatedStorage%20%3D%20game%3AGetService(%22ReplicatedStorage%22)%0Alocal%20Workspace%20%3D%20game%3AGetService(%22Workspace%22)%0A%0Alocal%20player%20%3D%20Players.LocalPlayer%0Alocal%20character%20%3D%20player.Character%20or%20player.CharacterAdded%3AWait()%0Alocal%20humanoidRootPart%20%3D%20character%3AWaitForChild(%22HumanoidRootPart%22)%0A%0A--%20%F0%9F%94%81%20%E0%B9%82%E0%B8%9F%E0%B8%A5%E0%B9%80%E0%B8%94%E0%B8%AD%E0%B8%A3%E0%B9%8C%E0%B8%A8%E0%B8%B1%E0%B8%95%E0%B8%A3%E0%B8%B9%0Alocal%20enemiesFolder%20%3D%20workspace%3AWaitForChild(%22__Main%22)%3AWaitForChild(%22__Enemies%22)%3AWaitForChild(%22Server%22)%0A%0A--%20%E2%9A%99%EF%B8%8F%20%E0%B8%95%E0%B8%B1%E0%B8%A7%E0%B9%81%E0%B8%9B%E0%B8%A3%E0%B8%AB%E0%B8%A5%E0%B8%B1%E0%B8%81%0Alocal%20AutoFarmEnabled%20%3D%20false%0Alocal%20farmSpeed%20%3D%205%0Alocal%20currentTween%0A%0A--------------------------------------------------------%0A--%20%F0%9F%A7%AD%20%E0%B8%9F%E0%B8%B1%E0%B8%87%E0%B8%81%E0%B9%8C%E0%B8%8A%E0%B8%B1%E0%B8%99%E0%B8%8A%E0%B9%88%E0%B8%A7%E0%B8%A2%E0%B8%9E%E0%B8%B7%E0%B9%89%E0%B8%99%E0%B8%90%E0%B8%B2%E0%B8%99%0A--------------------------------------------------------%0A%0A--%20%F0%9F%94%B9%20%E0%B8%94%E0%B8%B6%E0%B8%87%20HumanoidRootPart%20%E0%B8%9B%E0%B8%A5%E0%B8%AD%E0%B8%94%E0%B8%A0%E0%B8%B1%E0%B8%A2%20(%E0%B8%81%E0%B8%B1%E0%B8%99%20Nil)%0Alocal%20function%20getHRP()%0A%09local%20char%20%3D%20player.Character%20or%20player.CharacterAdded%3AWait()%0A%09return%20char%3AFindFirstChild(%22HumanoidRootPart%22)%0Aend%0A%0A--%20%F0%9F%94%8E%20%E0%B8%AB%E0%B8%B2%20Part%20%E0%B8%A8%E0%B8%B1%E0%B8%95%E0%B8%A3%E0%B8%B9%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B9%83%E0%B8%81%E0%B8%A5%E0%B9%89%E0%B8%95%E0%B8%B1%E0%B8%A7%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B8%AA%E0%B8%B8%E0%B8%94%20(HP%20%3E%200)%0Alocal%20function%20getClosestEnemyPart()%0A%09local%20closestPart%0A%09local%20shortestDistance%20%3D%20math.huge%0A%0A%09for%20_%2C%20part%20in%20ipairs(enemiesFolder%3AGetChildren())%20do%0A%09%09if%20part%3AIsA(%22Part%22)%20and%20part%3AIsDescendantOf(workspace)%20then%0A%09%09%09local%20hp%20%3D%20part%3AGetAttribute(%22HP%22)%0A%09%09%09if%20hp%20and%20hp%20%3E%200%20then%0A%09%09%09%09local%20hrp%20%3D%20getHRP()%0A%09%09%09%09if%20hrp%20then%0A%09%09%09%09%09local%20distance%20%3D%20(part.Position%20-%20hrp.Position).Magnitude%0A%09%09%09%09%09if%20distance%20%3C%20shortestDistance%20then%0A%09%09%09%09%09%09shortestDistance%20%3D%20distance%0A%09%09%09%09%09%09closestPart%20%3D%20part%0A%09%09%09%09%09end%0A%09%09%09%09end%0A%09%09%09end%0A%09%09end%0A%09end%0A%0A%09return%20closestPart%0Aend%0A%0A--%20%F0%9F%A7%A9%20%E0%B8%9F%E0%B8%B1%E0%B8%87%E0%B8%81%E0%B9%8C%E0%B8%8A%E0%B8%B1%E0%B8%99%E0%B8%A7%E0%B8%B2%E0%B8%A3%E0%B9%8C%E0%B8%9B%E0%B9%84%E0%B8%9B%E0%B8%A8%E0%B8%B1%E0%B8%95%E0%B8%A3%E0%B8%B9%20(%E0%B8%A1%E0%B8%B5%E0%B8%A3%E0%B8%B0%E0%B8%9A%E0%B8%9A%E0%B8%81%E0%B8%B1%E0%B8%99%E0%B8%95%E0%B8%81%E0%B9%82%E0%B8%A5%E0%B8%81)%0Alocal%20function%20teleportToEnemyPart(enemyPart%2C%20offsetDistance)%0A%09local%20hrp%20%3D%20getHRP()%0A%09if%20not%20(enemyPart%20and%20hrp%20and%20enemyPart%3AIsDescendantOf(workspace))%20then%20return%20end%0A%0A%09local%20direction%20%3D%20(enemyPart.Position%20-%20hrp.Position).Unit%0A%09local%20distance%20%3D%20(enemyPart.Position%20-%20hrp.Position).Magnitude%0A%09local%20targetPos%20%3D%20enemyPart.Position%20-%20direction%20*%20offsetDistance%0A%0A%09--%20%F0%9F%92%A1%20%E0%B8%96%E0%B9%89%E0%B8%B2%E0%B9%84%E0%B8%81%E0%B8%A5%E0%B9%80%E0%B8%81%E0%B8%B4%E0%B8%99%20300%20stud%20%E0%B9%83%E0%B8%AB%E0%B9%89%E0%B9%80%E0%B8%97%E0%B9%80%E0%B8%A5%E0%B8%9E%E0%B8%AD%E0%B8%A3%E0%B9%8C%E0%B8%95%E0%B8%97%E0%B8%B1%E0%B8%99%E0%B8%97%E0%B8%B5%0A%09if%20distance%20%3E%20300%20or%20hrp.Position.Y%20%3C%20-10%20then%0A%09%09hrp.CFrame%20%3D%20CFrame.new(targetPos%20%2B%20Vector3.new(0%2C%205%2C%200))%0A%09%09return%0A%09end%0A%0A%09--%20%F0%9F%8C%80%20Tween%20%E0%B8%82%E0%B8%A2%E0%B8%B1%E0%B8%9A%E0%B9%80%E0%B8%82%E0%B9%89%E0%B8%B2%E0%B9%83%E0%B8%81%E0%B8%A5%E0%B9%89%0A%09if%20currentTween%20then%20currentTween%3ACancel()%20end%0A%09local%20tweenTime%20%3D%20math.clamp(distance%20%2F%20(farmSpeed%20*%20100)%2C%200.1%2C%201)%0A%09local%20tweenInfo%20%3D%20TweenInfo.new(tweenTime%2C%20Enum.EasingStyle.Linear)%0A%09currentTween%20%3D%20TweenService%3ACreate(hrp%2C%20tweenInfo%2C%20%7BCFrame%20%3D%20CFrame.new(targetPos)%7D)%0A%09currentTween%3APlay()%0A%09task.wait(tweenTime)%0Aend%0A%0A--------------------------------------------------------%0A--%20%E2%9A%94%EF%B8%8F%20%E0%B8%9F%E0%B8%B1%E0%B8%87%E0%B8%81%E0%B9%8C%E0%B8%8A%E0%B8%B1%E0%B8%99%E0%B8%AB%E0%B8%A5%E0%B8%B1%E0%B8%81%20Auto%20Farm%0A--------------------------------------------------------%0A%0Alocal%20function%20autoFarm()%0A%09while%20AutoFarmEnabled%20do%0A%09%09local%20hrp%20%3D%20getHRP()%0A%09%09if%20not%20hrp%20then%0A%09%09%09task.wait(1)%0A%09%09%09continue%0A%09%09end%0A%0A%09%09local%20enemyPart%20%3D%20getClosestEnemyPart()%0A%09%09if%20enemyPart%20then%0A%09%09%09teleportToEnemyPart(enemyPart%2C%205)%0A%0A%09%09%09--%20%F0%9F%94%81%20%E0%B8%95%E0%B8%B5%E0%B8%88%E0%B8%99%E0%B8%A8%E0%B8%B1%E0%B8%95%E0%B8%A3%E0%B8%B9%E0%B8%95%E0%B8%B2%E0%B8%A2%0A%09%09%09while%20AutoFarmEnabled%20do%0A%09%09%09%09if%20not%20(enemyPart%20and%20enemyPart.Parent)%20then%20break%20end%0A%09%09%09%09local%20hp%20%3D%20enemyPart%3AGetAttribute(%22HP%22)%0A%09%09%09%09if%20not%20hp%20or%20hp%20%3C%3D%200%20then%0A%09%09%09%09%09task.wait(0.2)%0A%09%09%09%09%09break%0A%09%09%09%09end%0A%09%09%09%09task.wait(0.05)%0A%09%09%09end%0A%09%09else%0A%09%09%09task.wait(0.5)%0A%09%09end%0A%09%09task.wait(0.05)%0A%09end%0Aend%0A%0A--------------------------------------------------------%0A--%20%E2%99%BB%EF%B8%8F%20%E0%B8%9F%E0%B8%B1%E0%B8%87%E0%B8%81%E0%B9%8C%E0%B8%8A%E0%B8%B1%E0%B8%99%E0%B9%80%E0%B8%A3%E0%B8%B4%E0%B9%88%E0%B8%A1%E0%B8%AB%E0%B8%A5%E0%B8%B1%E0%B8%87%E0%B8%A3%E0%B8%B5%E0%B9%80%E0%B8%81%E0%B8%B4%E0%B8%94%0A--------------------------------------------------------%0A%0Alocal%20function%20safeStartAutoFarm()%0A%09task.defer(function()%0A%09%09while%20true%20do%0A%09%09%09if%20AutoFarmEnabled%20then%0A%09%09%09%09local%20hrp%20%3D%20getHRP()%0A%09%09%09%09if%20hrp%20then%0A%09%09%09%09%09task.spawn(autoFarm)%0A%09%09%09%09%09break%0A%09%09%09%09end%0A%09%09%09end%0A%09%09%09task.wait(1)%0A%09%09end%0A%09end)%0Aend%0A%0Aplayer.CharacterAdded%3AConnect(function(newChar)%0A%09task.wait(1)%0A%09character%20%3D%20newChar%0A%09humanoidRootPart%20%3D%20newChar%3AWaitForChild(%22HumanoidRootPart%22)%0A%0A%09if%20AutoFarmEnabled%20then%0A%09%09task.wait(0.5)%0A%09%09safeStartAutoFarm()%0A%09end%0Aend)%0A%0A--------------------------------------------------------%0A--%20%F0%9F%8E%9B%EF%B8%8F%20UI%20Controls%0A--------------------------------------------------------%0A%0ADungeontTab%3ACreateToggle(%7B%0A%09Name%20%3D%20%22Auto%20Farm%22%2C%0A%09CurrentValue%20%3D%20false%2C%0A%09Flag%20%3D%20%22AutoFarm%22%2C%0A%09Callback%20%3D%20function(Value)%0A%09%09AutoFarmEnabled%20%3D%20Value%0A%09%09if%20Value%20then%0A%09%09%09local%20hrp%20%3D%20getHRP()%0A%09%09%09if%20hrp%20then%0A%09%09%09%09local%20firstEnemy%20%3D%20getClosestEnemyPart()%0A%09%09%09%09if%20firstEnemy%20then%0A%09%09%09%09%09hrp.CFrame%20%3D%20CFrame.new(firstEnemy.Position%20%2B%20Vector3.new(0%2C%205%2C%200))%0A%09%09%09%09end%0A%09%09%09end%0A%09%09%09task.spawn(autoFarm)%0A%09%09else%0A%09%09%09if%20currentTween%20then%0A%09%09%09%09currentTween%3ACancel()%0A%09%09%09%09currentTween%20%3D%20nil%0A%09%09%09end%0A%09%09end%0A%09end%2C%0A%7D)%0A%0ADungeontTab%3ACreateSlider(%7B%0A%09Name%20%3D%20%22Farm%20Speed%22%2C%0A%09Range%20%3D%20%7B1%2C%2010%7D%2C%0A%09Increment%20%3D%201%2C%0A%09CurrentValue%20%3D%20farmSpeed%2C%0A%09Flag%20%3D%20%22FarmSpeed%22%2C%0A%09Callback%20%3D%20function(Value)%0A%09%09farmSpeed%20%3D%20Value%0A%09end%2C%0A%7D)%20%20if%20player%20and%20player.Character%20and%20player.Character%3AFindFirstChild(%22HumanoidRootPart%22)%20then%0A%20%20%20%20%20%20%20%20%20%20%20%20SavedPosition%20%3D%20player.Character.HumanoidRootPart.Position%0A%20%20%20%20%20%20%20%20%20%20%20%20print(%22Position%20Saved%3A%22%2C%20SavedPosition)%0A%20%20%20%20%20%20%20%20%20%20%20%20else%0A%20%20%20%20%20%20%20%20%20%20%20%20print(%22Cannot%20save%20position%2C%20character%20not%20found%22)%0A%20%20%20%20%20%20%20%20end%0A%20%20%20%20end%2C%0A%7D)%0A%0AINFOSTab%3ACreateButton(%7B%0A%20%20%20%20Name%20%3D%20%22Teleport%20to%20Save%20Position%22%2C%0A%20%20%20%20Callback%20%3D%20function()%0A%20%20%20%20%20%20%20%20local%20player%20%3D%20game.Players.LocalPlayer%0A%20%20%20%20%20%20%20%20if%20SavedPosition%20and%20player%20and%20player.Character%20and%20player.Character%3AFindFirstChild(%22HumanoidRootPart%22)%20then%0A%20%20%20%20%20%20%20%20%20%20%20%20player.Character.HumanoidRootPart.CFrame%20%3D%20CFrame.new(SavedPosition)%0A%20%20%20%20%20%20%20%20%20%20%20%20print(%22Teleported%20to%20saved%20position%22)%0A%20%20%20%20%20%20%20%20%20%20%20%20else%0A%20%20%20%20%20%20%20%20%20%20%20%20print(%22No%20saved%20position%20or%20character%20not%20found%22)%0A%20%20%20%20%20%20%20%20end%0A%20%20%20%20end%2C%0A%7D)%0A%0Alocal%20Players%20%3D%20game%3AGetService(%22Players%22)%0Alocal%20ReplicatedStorage%20%3D%20game%3AGetService(%22ReplicatedStorage%22)%0Alocal%20player%20%3D%20Players.LocalPlayer%0Alocal%20BridgeEvent%20%3D%20ReplicatedStorage%3AWaitForChild(%22BridgeNet2%22)%3AWaitForChild(%22dataRemoteEvent%22)%0A%0Alocal%20SellpetSection%20%3D%20INFOSTab%3ACreateSection(%22Auto%20Sell%20Settings%22)%0A%0Alocal%20AutoSellEnabled%20%3D%20false%0Alocal%20connection%20--%20%E0%B9%84%E0%B8%A7%E0%B9%89%E0%B9%80%E0%B8%81%E0%B9%87%E0%B8%9A%20event%20%E0%B9%80%E0%B8%9E%E0%B8%B7%E0%B9%88%E0%B8%AD%E0%B8%AB%E0%B8%A2%E0%B8%B8%E0%B8%94%E0%B8%95%E0%B8%AD%E0%B8%99%E0%B8%9B%E0%B8%B4%E0%B8%94%E0%B8%A3%E0%B8%B0%E0%B8%9A%E0%B8%9A%0A%0AINFOSTab%3ACreateToggle(%7B%0A%20%20%20%20Name%20%3D%20%22Auto%20Sell%20(Rank%20E-UGM%2B)%22%2C%0A%20%20%20%20CurrentValue%20%3D%20false%2C%0A%20%20%20%20Flag%20%3D%20%22AutoSell%22%2C%0A%20%20%20%20Callback%20%3D%20function(Value)%0A%20%20%20%20%20%20%20%20AutoSellEnabled%20%3D%20Value%0A%0A%20%20%20%20%20%20%20%20if%20AutoSellEnabled%20then%0A%20%20%20%20%20%20%20%20%20%20%20%20--%20%E0%B8%AB%E0%B8%B2%E0%B9%82%E0%B8%9F%E0%B8%A5%E0%B9%80%E0%B8%94%E0%B8%AD%E0%B8%A3%E0%B9%8C%20Pets%0A%20%20%20%20%20%20%20%20%20%20%20%20local%20petsFolder%20%3D%20player%3AFindFirstChild(%22leaderstats%22)%0A%20%20%20%20%20%20%20%20%20%20%20%20if%20petsFolder%20then%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20petsFolder%20%3D%20petsFolder%3AFindFirstChild(%22Inventory%22)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20if%20petsFolder%20then%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20petsFolder%20%3D%20petsFolder%3AFindFirstChild(%22Pets%22)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20end%0A%20%20%20%20%20%20%20%20%20%20%20%20end%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20if%20not%20petsFolder%20then%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20return%0A%20%20%20%20%20%20%20%20%20%20%20%20end%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20--%20%E0%B8%9F%E0%B8%B1%E0%B8%87%E0%B8%81%E0%B9%8C%E0%B8%8A%E0%B8%B1%E0%B8%99%E0%B8%82%E0%B8%B2%E0%B8%A2%20pet%20%E0%B8%97%E0%B8%B5%E0%B9%88%20rank%201%E2%80%9310%0A%20%20%20%20%20%20%20%20%20%20%20%20local%20function%20sellLowRankPets(pet)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20if%20not%20AutoSellEnabled%20then%20return%20end%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20if%20pet%20and%20pet%3AIsA(%22Folder%22)%20then%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20local%20rankValue%20%3D%20pet%3AGetAttribute(%22Rank%22)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20if%20typeof(rankValue)%20%3D%3D%20%22number%22%20and%20rankValue%20%3E%3D%201%20and%20rankValue%20%3C%3D%2016%20then%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20local%20args%20%3D%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%5B1%5D%20%3D%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%5B1%5D%20%3D%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%5B%22Event%22%5D%20%3D%20%22SellPet%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%5B%22Pets%22%5D%20%3D%20%7B%20pet.Name%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%5B2%5D%20%3D%20%22%5C7%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20BridgeEvent%3AFireServer(unpack(args))%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20end%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20end%0A%20%20%20%20%20%20%20%20%20%20%20%20end%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20--%20%E0%B8%82%E0%B8%B2%E0%B8%A2%20pet%20%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B8%A1%E0%B8%B5%E0%B8%AD%E0%B8%A2%E0%B8%B9%E0%B9%88%E0%B9%81%E0%B8%A5%E0%B9%89%E0%B8%A7%20(%E0%B8%96%E0%B9%89%E0%B8%B2%E0%B8%A1%E0%B8%B5)%0A%20%20%20%20%20%20%20%20%20%20%20%20for%20_%2C%20pet%20in%20ipairs(petsFolder%3AGetChildren())%20do%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20sellLowRankPets(pet)%0A%20%20%20%20%20%20%20%20%20%20%20%20end%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20--%20%E0%B8%95%E0%B8%A3%E0%B8%A7%E0%B8%88%E0%B8%97%E0%B8%B8%E0%B8%81%E0%B8%84%E0%B8%A3%E0%B8%B1%E0%B9%89%E0%B8%87%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B8%A1%E0%B8%B5%20pet%20%E0%B9%83%E0%B8%AB%E0%B8%A1%E0%B9%88%E0%B9%80%E0%B8%9E%E0%B8%B4%E0%B9%88%E0%B8%A1%E0%B9%80%E0%B8%82%E0%B9%89%E0%B8%B2%E0%B8%A1%E0%B8%B2%0A%20%20%20%20%20%20%20%20%20%20%20%20connection%20%3D%20petsFolder.ChildAdded%3AConnect(function(pet)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20sellLowRankPets(pet)%0A%20%20%20%20%20%20%20%20%20%20%20%20end)%0A%0A%20%20%20%20%20%20%20%20else%0A%20%20%20%20%20%20%20%20%20%20%20%20--%20%E0%B8%9B%E0%B8%B4%E0%B8%94%E0%B8%A3%E0%B8%B0%E0%B8%9A%E0%B8%9A%20auto%20sell%0A%20%20%20%20%20%20%20%20%20%20%20%20if%20connection%20then%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20connection%3ADisconnect()%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20connection%20%3D%20nil%0A%20%20%20%20%20%20%20%20%20%20%20%20end%0A%20%20%20%20%20%20%20%20end%0A%20%20%20%20end%2C%0A%7D)%0A%0Alocal%20MainTab%20%3D%20Window%3ACreateTab(%22Main%22%2C%204483362458)%20--%20%E0%B8%8A%E0%B8%B7%E0%B9%88%E0%B8%AD%20tab%20%2B%20%E0%B9%84%E0%B8%AD%E0%B8%84%E0%B8%AD%E0%B8%99%0Alocal%20MainSection%20%3D%20MainTab%3ACreateSection(%22Farming%20Settings%22)%0A%0AMainTab%3ACreateDropdown(%7B%0A%20%20%20%20Name%20%3D%20%22Select%20World%22%2C%0A%20%20%20%20Options%20%3D%20%7B%22SoloWorld%22%2C%20%22NarutoWorld%22%2C%20%22OPWorld%22%2C%20%22BleachWorld%22%2C%20%22BCWorld%22%2C%20%22ChainsawWorld%22%2C%20%22JojoWorld%22%2C%20%22DBWorld%22%2C%20%22OPMWorld%22%2C%20%22DanWorld%22%2C%20%22Solo2World%22%7D%2C%0A%20%20%20%20CurrentOption%20%3D%20%7B%22SoloWorld%22%7D%2C%0A%20%20%20%20Flag%20%3D%20%22SelectedIsland%22%2C%0A%20%20%20%20Callback%20%3D%20function(Option)%0A%20%20%20%20%20%20%20%20print(%22Selected%3A%20%22%20..%20Option%5B1%5D)%0A%20%20%20%20end%2C%0A%7D)%0A%0AMainTab%3ACreateDropdown(%7B%0A%20%20%20%20Name%20%3D%20%22Select%20Enemies%22%2C%0A%20%20%20%20Options%20%3D%20%7B%22Enemies%201%22%2C%20%22Enemies%202%22%2C%20%22Enemies%203%22%7D%2C%0A%20%20%20%20CurrentOption%20%3D%20%7B%22Enemies%201%22%7D%2C%0A%20%20%20%20Flag%20%3D%20%22SelectedEnemies%22%2C%0A%20%20%20%20Callback%20%3D%20function(Option)%0A%20%20%20%20%20%20%20%20print(%22Selected%3A%20%22%20..%20Option%5B1%5D)%0A%20%20%20%20end%2C%0A%7D)%0A%0AMainTab%3ACreateDropdown(%7B%0A%20%20%20%20Name%20%3D%20%22Enemies%20Type%22%2C%0A%20%20%20%20Options%20%3D%20%7B%22Normal%22%2C%20%22Big%22%7D%2C%0A%20%20%20%20CurrentOption%20%3D%20%7B%22Normal%22%7D%2C%0A%20%20%20%20Flag%20%3D%20%22SelectedType%22%2C%0A%20%20%20%20Callback%20%3D%20function(Option)%0A%20%20%20%20%20%20%20%20print(%22Selected%3A%20%22%20..%20Option%5B1%5D)%0A%20%20%20%20end%2C%0A%7D)%0A%0AMainTab%3ACreateDropdown(%7B%0A%20%20%20%20Name%20%3D%20%22Move%20Mode%22%2C%0A%20%20%20%20Options%20%3D%20%7B%22Slow%22%2C%20%22Fast%22%7D%2C%0A%20%20%20%20CurrentOption%20%3D%20%7B%22Slow%22%7D%2C%0A%20%20%20%20Flag%20%3D%20%22SelectedType%22%2C%0A%20%20%20%20Callback%20%3D%20function(Option)%0A%20%20%20%20%20%20%20%20print(%22Selected%3A%20%22%20..%20Option%5B1%5D)%0A%20%20%20%20end%2C%0A%7D)%0A%0AMainTab%3ACreateSlider(%7B%0A%20%20%20%20Name%20%3D%20%22Tween%20Speed%22%2C%0A%20%20%20%20Range%20%3D%20%7B100%2C%201000%7D%2C%0A%20%20%20%20Increment%20%3D%201%2C%0A%20%20%20%20Suffix%20%3D%20%22%22%2C%0A%20%20%20%20CurrentValue%20%3D%20100%2C%0A%20%20%20%20Flag%20%3D%20%22Tween%20Speed%22%2C%0A%20%20%20%20Callback%20%3D%20function(Value)%0A%20%20%20%20%20%20%20%20print(%22Speed%20%3D%20%22%20..%20Value)%0A%20%20%20%20end%2C%0A%7D)%0A%0AMainTab%3ACreateSlider(%7B%0A%20%20%20%20Name%20%3D%20%22Farm%20Delay%22%2C%0A%20%20%20%20Range%20%3D%20%7B0%2C%205%7D%2C%0A%20%20%20%20Increment%20%3D%200.1%2C%0A%20%20%20%20Suffix%20%3D%20%22%22%2C%0A%20%20%20%20CurrentValue%20%3D%200.1%2C%0A%20%20%20%20Flag%20%3D%20%22Farm%20Delay%22%2C%0A%20%20%20%20Callback%20%3D%20function(Value)%0A%20%20%20%20%20%20%20%20print(%22Speed%20%3D%20%22%20..%20Value)%0A%20%20%20%20end%2C%0A%7D)%0A%0AMainTab%3ACreateToggle(%7B%0A%20%20%20%20Name%20%3D%20%22Auto%20Farm%22%2C%0A%20%20%20%20CurrentValue%20%3D%20false%2C%0A%20%20%20%20Flag%20%3D%20%22AutoFarm%22%2C%0A%20%20%20%20Callback%20%3D%20function(Value)%0A%20%20%20%20%20%20%20%20if%20Value%20then%0A%20%20%20%20%20%20%20%20%20%20%20%20print(%22Auto%20Farm%20On%22)%0A%20%20%20%20%20%20%20%20else%0A%20%20%20%20%20%20%20%20%20%20%20%20print(%22Auto%20Farm%20Off%22)%0A%20%20%20%20%20%20%20%20end%0A%20%20%20%20end%2C%0A%7D)%0A%0Alocal%20ReplicatedStorage%20%3D%20game%3AGetService(%22ReplicatedStorage%22)%0Alocal%20WepetEvent%20%3D%20ReplicatedStorage.__Assets.WepetEvent%0A%0AMainTab%3ACreateToggle(%7B%0A%20%20%20%20Name%20%3D%20%22Auto%20Click%22%2C%0A%20%20%20%20CurrentValue%20%3D%20false%2C%0A%20%20%20%20Flag%20%3D%20%22AutoClick%22%2C%0A%20%20%20%20Callback%20%3D%20function(Value)%0A%20%20%20%20%20%20%20%20print(%22%E0%B8%AA%E0%B8%96%E0%B8%B2%E0%B8%99%E0%B8%B0%3A%22%2C%20Value)%0A%20%20%20%20%20%20%20%20if%20Value%20then%0A%20%20%20%20%20%20%20%20%20%20%20%20--%20%E0%B9%80%E0%B8%9B%E0%B8%B4%E0%B8%94%20AutoClick%0A%20%20%20%20%20%20%20%20%20%20%20%20WepetEvent%3AFire(%22AutoClick%22)%0A%20%20%20%20%20%20%20%20else%0A%20%20%20%20%20%20%20%20%20%20%20%20--%20%E0%B8%9B%E0%B8%B4%E0%B8%94%20AutoClick%20(%E0%B8%96%E0%B9%89%E0%B8%B2%E0%B8%A1%E0%B8%B5%E0%B8%A3%E0%B8%B0%E0%B8%9A%E0%B8%9A%E0%B8%9B%E0%B8%B4%E0%B8%94%E0%B9%83%E0%B8%99%E0%B9%80%E0%B8%81%E0%B8%A1)%0A%20%20%20%20%20%20%20%20%20%20%20%20WepetEvent%3AFire(%22AutoClick%22)%20--%20%E0%B8%9A%E0%B8%B2%E0%B8%87%E0%B9%80%E0%B8%81%E0%B8%A1%20toggle%20%E0%B9%80%E0%B8%94%E0%B8%B5%E0%B8%A2%E0%B8%A7%E0%B8%81%E0%B8%B1%E0%B8%99%E0%B8%81%E0%B8%94%E0%B8%8B%E0%B9%89%E0%B8%B3%E0%B9%80%E0%B8%9E%E0%B8%B7%E0%B9%88%E0%B8%AD%E0%B8%9B%E0%B8%B4%E0%B8%94%0A%20%20%20%20%20%20%20%20end%0A%20%20%20%20end%2C%0A%7D)%0A%0Alocal%20TeleportTab%20%3D%20Window%3ACreateTab(%22Teleport%22%2C%204483362458)%0A%0A--------------------------------------------------%0A--%20%F0%9F%8C%B4%20EVENT%20WORLD%201%0A--------------------------------------------------%0Alocal%20TeleportSection1%20%3D%20TeleportTab%3ACreateSection(%22TeleportEvent%20World%201%22)%0A%0Alocal%20EventWorld1Positions%20%3D%20%7B%0A%20%20%20%20%7BName%20%3D%20%22Jeju%20Island%22%2C%20Position%20%3D%20Vector3.new(4016.08643%2C%2048.6075211%2C%203350.37573)%7D%2C%0A%20%20%20%20%7BName%20%3D%20%22Halloween%20Island%22%2C%20Position%20%3D%20Vector3.new(-295.354584%2C%2020.6939487%2C%20-1739.28699)%7D%2C%0A%7D%0A%0Afor%20_%2C%20world%20in%20ipairs(EventWorld1Positions)%20do%0A%20%20%20%20TeleportTab%3ACreateButton(%7B%0A%20%20%20%20%20%20%20%20Name%20%3D%20world.Name%2C%0A%20%20%20%20%20%20%20%20Callback%20%3D%20function()%0A%20%20%20%20%20%20%20%20%20%20%20%20local%20player%20%3D%20game.Players.LocalPlayer%0A%20%20%20%20%20%20%20%20%20%20%20%20if%20player.Character%20and%20player.Character%3AFindFirstChild(%22HumanoidRootPart%22)%20then%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20player.Character.HumanoidRootPart.CFrame%20%3D%20CFrame.new(world.Position)%0A%20%20%20%20%20%20%20%20%20%20%20%20end%0A%20%20%20%20%20%20%20%20end%0A%20%20%20%20%7D)%0Aend%0A%0A--------------------------------------------------%0A--%20%F0%9F%8E%83%20EVENT%20WORLD%202%0A--------------------------------------------------%0Alocal%20TeleportSection2%20%3D%20TeleportTab%3ACreateSection(%22TeleportEvent%20World%202%22)%0A%0Alocal%20EventWorld2Positions%20%3D%20%7B%0A%20%20%20%20%7BName%20%3D%20%22Halloween%20Island%22%2C%20Position%20%3D%20Vector3.new(-367.087646484375%2C%2040.386661529541016%2C%20-1956.859619140625)%7D%2C%0A%7D%0A%0Afor%20_%2C%20world%20in%20ipairs(EventWorld2Positions)%20do%0A%20%20%20%20TeleportTab%3ACreateButton(%7B%0A%20%20%20%20%20%20%20%20Name%20%3D%20world.Name%2C%0A%20%20%20%20%20%20%20%20Callback%20%3D%20function()%0A%20%20%20%20%20%20%20%20%20%20%20%20local%20player%20%3D%20game.Players.LocalPlayer%0A%20%20%20%20%20%20%20%20%20%20%20%20if%20player.Character%20and%20player.Character%3AFindFirstChild(%22HumanoidRootPart%22)%20then%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20player.Character.HumanoidRootPart.CFrame%20%3D%20CFrame.new(world.Position)%0A%20%20%20%20%20%20%20%20%20%20%20%20end%0A%20%20%20%20%20%20%20%20end%0A%20%20%20%20%7D)%0Aend%0A%0A--------------------------------------------------%0A--%20%F0%9F%8C%8E%20WORLD%201%0A--------------------------------------------------%0Alocal%20TeleportSection3%20%3D%20TeleportTab%3ACreateSection(%22World%201%22)%0A%0Alocal%20World1Positions%20%3D%20%7B%0A%20%20%20%20%7BName%20%3D%20%22SoloWorld%22%2C%20Position%20%3D%20Vector3.new(452.069458%2C%2015.2470932%2C%20-22.7720184)%7D%2C%0A%20%20%20%20%7BName%20%3D%20%22Grass%20Village%22%2C%20Position%20%3D%20Vector3.new(-3372.71191%2C%2030.0344715%2C%202252.61719)%7D%2C%0A%20%20%20%20%7BName%20%3D%20%22Brum%20Lsland%22%2C%20Position%20%3D%20Vector3.new(-2844.155517578125%2C%2050.02361297607422%2C%20-2016.807373046875)%7D%2C%0A%20%20%20%20%7BName%20%3D%20%22Faceheal%20Town%22%2C%20Position%20%3D%20Vector3.new(2815.10229%2C%208.5139246%2C%20-2734.53516)%7D%2C%0A%20%20%20%20%7BName%20%3D%20%22Lucky%20Kingdom%22%2C%20Position%20%3D%20Vector3.new(196.180267%2C%2040.2076797%2C%204297.66455)%7D%2C%0A%20%20%20%20%7BName%20%3D%20%22Nipon%20City%22%2C%20Position%20%3D%20Vector3.new(192.605652%2C%2015.2705383%2C%20-4293.87109)%7D%2C%0A%20%20%20%20%7BName%20%3D%20%22Mori%20Town%22%2C%20Position%20%3D%20Vector3.new(4817.64258%2C%2020.8282547%2C%20-158.618042)%7D%2C%0A%20%20%20%20%7BName%20%3D%20%22Dragon%20City%22%2C%20Position%20%3D%20Vector3.new(-2561.15479%2C%2030.2231064%2C%205871.14941)%7D%2C%0A%20%20%20%20%7BName%20%3D%20%22XZ%20City%22%2C%20Position%20%3D%20Vector3.new(3321.18042%2C%2020.2300873%2C%206384.54492)%7D%2C%0A%20%20%20%20%7BName%20%3D%20%22Kindama%20City%22%2C%20Position%20%3D%20Vector3.new(-3383.6604%2C%2025.4620323%2C%20-84.0994873)%7D%2C%0A%7D%0A%0Afor%20_%2C%20world%20in%20ipairs(World1Positions)%20do%0A%20%20%20%20TeleportTab%3ACreateButton(%7B%0A%20%20%20%20%20%20%20%20Name%20%3D%20world.Name%2C%0A%20%20%20%20%20%20%20%20Callback%20%3D%20function()%0A%20%20%20%20%20%20%20%20%20%20%20%20local%20player%20%3D%20game.Players.LocalPlayer%0A%20%20%20%20%20%20%20%20%20%20%20%20if%20player.Character%20and%20player.Character%3AFindFirstChild(%22HumanoidRootPart%22)%20then%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20player.Character.HumanoidRootPart.CFrame%20%3D%20CFrame.new(world.Position)%0A%20%20%20%20%20%20%20%20%20%20%20%20end%0A%20%20%20%20%20%20%20%20end%0A%20%20%20%20%7D)%0Aend%0A%0A--------------------------------------------------%0A--%20%F0%9F%8C%8D%20WORLD%202%0A--------------------------------------------------%0Alocal%20TeleportSection4%20%3D%20TeleportTab%3ACreateSection(%22World%202%22)%0A%0Alocal%20World2Positions%20%3D%20%7B%0A%20%20%20%20%7BName%20%3D%20%22Hunters%20City%22%2C%20Position%20%3D%20Vector3.new(-241.06199645996094%2C%2015.942999839782715%2C%20-13.78600025177002)%7D%2C%0A%20%20%20%20%7BName%20%3D%20%22Nen%20City%22%2C%20Position%20%3D%20Vector3.new(-5225.88671875%2C%2035.88656234741211%2C%20-2923.06201171875)%7D%2C%0A%20%20%20%20%7BName%20%3D%20%22Hurricane%22%2C%20Position%20%3D%20Vector3.new(-1289.09521484375%2C%2047.42665481567383%2C%20-5173.0888671875)%7D%2C%0A%20%20%20%20%7BName%20%3D%20%22Cursed%20High%22%2C%20Position%20%3D%20Vector3.new(735.7350463867188%2C%2058.68924331665039%2C%205018.86083984375)%7D%2C%0A%20%20%20%20%7BName%20%3D%20%22Slayer's%20Village%22%2C%20Position%20%3D%20Vector3.new(-6852.6513671875%2C%2080.42222595214844%2C%201596.4384765625)%7D%2C%0A%20%20%20%20%7BName%20%3D%20%22Kaiju%20City%22%2C%20Position%20%3D%20Vector3.new(5119.162109375%2C%20101.46529388427734%2C%2036.499000549316406)%7D%2C%0A%20%20%20%20%7BName%20%3D%20%22Wall%20Kingdom%22%2C%20Position%20%3D%20Vector3.new(-9007.994140625%2C%2085.90940856933594%2C%20-1793.15625)%7D%2C%0A%20%20%20%20%7BName%20%3D%20%22Shield%20Kingdom%22%2C%20Position%20%3D%20Vector3.new(-4769.32373046875%2C%2091.6708984375%2C%20-8029.35986328125)%7D%2C%0A%20%20%20%20%7BName%20%3D%20%22Ghoul%20City%22%2C%20Position%20%3D%20Vector3.new(2589.732177734375%2C%2091.97673797607422%2C%20-4194.45068359375)%7D%2C%0A%20%20%20%20%7BName%20%3D%20%22Eminance%20Kingdom%22%2C%20Position%20%3D%20Vector3.new(-4194.46240234375%2C%20120.6724624633789%2C%204690.453125)%7D%2C%0A%20%20%20%20%7BName%20%3D%20%22Monach%20City%22%2C%20Position%20%3D%20Vector3.new(3715.7470703125%2C%20128.0664520263672%2C%203817.377685546875)%7D%2C%0A%7D%0A%0Afor%20_%2C%20world%20in%20ipairs(World2Positions)%20do%0A%20%20%20%20TeleportTab%3ACreateButton(%7B%0A%20%20%20%20%20%20%20%20Name%20%3D%20world.Name%2C%0A%20%20%20%20%20%20%20%20Callback%20%3D%20function()%0A%20%20%20%20%20%20%20%20%20%20%20%20local%20player%20%3D%20game.Players.LocalPlayer%0A%20%20%20%20%20%20%20%20%20%20%20%20if%20player.Character%20and%20player.Character%3AFindFirstChild(%22HumanoidRootPart%22)%20then%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20player.Character.HumanoidRootPart.CFrame%20%3D%20CFrame.new(world.Position)%0A%20%20%20%20%20%20%20%20%20%20%20%20end%0A%20%20%20%20%20%20%20%20end%0A%20%20%20%20%7D)%0Aend%0A%0A%0Alocal%20DungeontTab%20%3D%20Window%3ACreateTab(%22Dungeont%22%2C%204483362458)%0Alocal%20DungeontSection%20%3D%20DungeontTab%3ACreateSection(%22Dungeont%20Settings%22)%0A%0A------------------------------------------------------%0A--%20%F0%9F%8C%B8%20Auto%20Dungeont%20(Teleport%20when%20Dungeon%20appears)%0A------------------------------------------------------%0A%0Alocal%20Players%20%3D%20game%3AGetService(%22Players%22)%0Alocal%20player%20%3D%20Players.LocalPlayer%0A%0Alocal%20function%20getDungeonCFrame(dungeon)%0A%09if%20dungeon%3AIsA(%22Model%22)%20then%0A%09%09if%20dungeon.PrimaryPart%20then%0A%09%09%09return%20dungeon.PrimaryPart.CFrame%0A%09%09else%0A%09%09%09--%20%E0%B9%83%E0%B8%8A%E0%B9%89%E0%B8%95%E0%B8%B3%E0%B9%81%E0%B8%AB%E0%B8%99%E0%B9%88%E0%B8%87%E0%B8%81%E0%B8%A5%E0%B8%B2%E0%B8%87%E0%B8%82%E0%B8%AD%E0%B8%87%20Model%20%E0%B8%96%E0%B9%89%E0%B8%B2%E0%B9%84%E0%B8%A1%E0%B9%88%E0%B8%A1%E0%B8%B5%20PrimaryPart%0A%09%09%09local%20cframe%2C%20size%20%3D%20dungeon%3AGetBoundingBox()%0A%09%09%09return%20cframe%0A%09%09end%0A%09elseif%20dungeon%3AIsA(%22BasePart%22)%20then%0A%09%09return%20dungeon.CFrame%0A%09end%0A%09return%20nil%0Aend%0A%0Alocal%20function%20startAutoDungeon()%0A%09task.spawn(function()%0A%09%09local%20dungeonFolder%20%3D%20workspace%3AWaitForChild(%22__Main%22)%3AWaitForChild(%22__Dungeon%22)%0A%0A%09%09while%20AutoDungeontToggle.CurrentValue%20do%0A%09%09%09local%20character%20%3D%20player.Character%20or%20player.CharacterAdded%3AWait()%0A%09%09%09local%20hrp%20%3D%20character%3AWaitForChild(%22HumanoidRootPart%22)%0A%0A%09%09%09local%20dungeon%20%3D%20dungeonFolder%3AFindFirstChild(%22Dungeon%22)%0A%09%09%09if%20dungeon%20then%0A%09%09%09%09local%20targetCFrame%20%3D%20getDungeonCFrame(dungeon)%0A%09%09%09%09if%20targetCFrame%20then%0A%09%09%09%09%09hrp.CFrame%20%3D%20targetCFrame%20*%20CFrame.new(0%2C%205%2C%200)%0A%09%09%09%09end%0A%09%09%09else%0A%09%09%09%09local%20newDungeon%20%3D%20dungeonFolder.ChildAdded%3AWait()%0A%09%09%09%09if%20newDungeon.Name%20%3D%3D%20%22Dungeon%22%20then%0A%09%09%09%09%09local%20targetCFrame%20%3D%20getDungeonCFrame(newDungeon)%0A%09%09%09%09%09if%20targetCFrame%20then%0A%09%09%09%09%09%09hrp.CFrame%20%3D%20targetCFrame%20*%20CFrame.new(0%2C%205%2C%200)%0A%09%09%09%09%09end%0A%09%09%09%09end%0A%09%09%09end%0A%0A%09%09%09task.wait(1)%0A%09%09end%0A%09end)%0Aend%0A%0A------------------------------------------------------%0A--%20%F0%9F%8C%B8%20Toggle%20UI%0A------------------------------------------------------%0AAutoDungeontToggle%20%3D%20DungeontTab%3ACreateToggle(%7B%0A%09Name%20%3D%20%22Auto%20Dungeont%22%2C%0A%09CurrentValue%20%3D%20false%2C%0A%09Flag%20%3D%20%22AutoDungeont%22%2C%0A%09Callback%20%3D%20function(Value)%0A%09%09if%20Value%20then%0A%09%09%09startAutoDungeon()%0A%09%09end%0A%09end%2C%0A%7D)%0A%0A--%20%F0%9F%8C%80%20AUTO%20FARM%20DUNGEON%20(Full%20Version%20by%20Maple)%0Alocal%20Players%20%3D%20game%3AGetService(%22Players%22)%0Alocal%20TweenService%20%3D%20game%3AGetService(%22TweenService%22)%0Alocal%20ReplicatedStorage%20%3D%20game%3AGetService(%22ReplicatedStorage%22)%0Alocal%20Workspace%20%3D%20game%3AGetService(%22Workspace%22)%0A%0Alocal%20player%20%3D%20Players.LocalPlayer%0Alocal%20character%20%3D%20player.Character%20or%20player.CharacterAdded%3AWait()%0Alocal%20humanoidRootPart%20%3D%20character%3AWaitForChild(%22HumanoidRootPart%22)%0A%0A--%20%F0%9F%94%81%20%E0%B9%82%E0%B8%9F%E0%B8%A5%E0%B9%80%E0%B8%94%E0%B8%AD%E0%B8%A3%E0%B9%8C%E0%B8%A8%E0%B8%B1%E0%B8%95%E0%B8%A3%E0%B8%B9%0Alocal%20enemiesFolder%20%3D%20workspace%3AWaitForChild(%22__Main%22)%3AWaitForChild(%22__Enemies%22)%3AWaitForChild(%22Server%22)%0A%0A--%20%E2%9A%99%EF%B8%8F%20%E0%B8%95%E0%B8%B1%E0%B8%A7%E0%B9%81%E0%B8%9B%E0%B8%A3%E0%B8%AB%E0%B8%A5%E0%B8%B1%E0%B8%81%0Alocal%20AutoFarmEnabled%20%3D%20false%0Alocal%20farmSpeed%20%3D%205%0Alocal%20teleportDistance%20%3D%205%20--%20%E0%B8%A3%E0%B8%B0%E0%B8%A2%E0%B8%B0%E0%B8%AB%E0%B9%88%E0%B8%B2%E0%B8%87%E0%B8%88%E0%B8%B2%E0%B8%81%E0%B8%A8%E0%B8%B1%E0%B8%95%E0%B8%A3%E0%B8%B9%20(studs)%0Alocal%20currentTween%0A%0A--------------------------------------------------------%0A--%20%F0%9F%A7%AD%20%E0%B8%9F%E0%B8%B1%E0%B8%87%E0%B8%81%E0%B9%8C%E0%B8%8A%E0%B8%B1%E0%B8%99%E0%B8%8A%E0%B9%88%E0%B8%A7%E0%B8%A2%E0%B8%9E%E0%B8%B7%E0%B9%89%E0%B8%99%E0%B8%90%E0%B8%B2%E0%B8%99%0A--------------------------------------------------------%0A%0A--%20%F0%9F%94%B9%20%E0%B8%94%E0%B8%B6%E0%B8%87%20HumanoidRootPart%20%E0%B8%9B%E0%B8%A5%E0%B8%AD%E0%B8%94%E0%B8%A0%E0%B8%B1%E0%B8%A2%0Alocal%20function%20getHRP()%0A%09local%20char%20%3D%20player.Character%20or%20player.CharacterAdded%3AWait()%0A%09return%20char%3AFindFirstChild(%22HumanoidRootPart%22)%0Aend%0A%0A--%20%F0%9F%94%8E%20%E0%B8%AB%E0%B8%B2%20Part%20%E0%B8%A8%E0%B8%B1%E0%B8%95%E0%B8%A3%E0%B8%B9%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B9%83%E0%B8%81%E0%B8%A5%E0%B9%89%E0%B8%95%E0%B8%B1%E0%B8%A7%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B8%AA%E0%B8%B8%E0%B8%94%20(HP%20%3E%200)%0Alocal%20function%20getClosestEnemyPart()%0A%09local%20closestPart%0A%09local%20shortestDistance%20%3D%20math.huge%0A%0A%09for%20_%2C%20part%20in%20ipairs(enemiesFolder%3AGetChildren())%20do%0A%09%09if%20part%3AIsA(%22Part%22)%20and%20part%3AIsDescendantOf(workspace)%20then%0A%09%09%09local%20hp%20%3D%20part%3AGetAttribute(%22HP%22)%0A%09%09%09if%20hp%20and%20hp%20%3E%200%20then%0A%09%09%09%09local%20hrp%20%3D%20getHRP()%0A%09%09%09%09if%20hrp%20then%0A%09%09%09%09%09local%20distance%20%3D%20(part.Position%20-%20hrp.Position).Magnitude%0A%09%09%09%09%09if%20distance%20%3C%20shortestDistance%20then%0A%09%09%09%09%09%09shortestDistance%20%3D%20distance%0A%09%09%09%09%09%09closestPart%20%3D%20part%0A%09%09%09%09%09end%0A%09%09%09%09end%0A%09%09%09end%0A%09%09end%0A%09end%0A%0A%09return%20closestPart%0Aend%0A%0A--------------------------------------------------------%0A--%20%F0%9F%A7%A9%20%E0%B8%9F%E0%B8%B1%E0%B8%87%E0%B8%81%E0%B9%8C%E0%B8%8A%E0%B8%B1%E0%B8%99%E0%B8%A7%E0%B8%B2%E0%B8%A3%E0%B9%8C%E0%B8%9B%E0%B9%84%E0%B8%9B%E0%B8%A8%E0%B8%B1%E0%B8%95%E0%B8%A3%E0%B8%B9%20(XZ%20Offset%20%2B%20%E0%B8%9B%E0%B9%89%E0%B8%AD%E0%B8%87%E0%B8%81%E0%B8%B1%E0%B8%99%E0%B8%95%E0%B8%81%E0%B9%82%E0%B8%A5%E0%B8%81)%0A--%20%F0%9F%A7%A9%20%E0%B8%9F%E0%B8%B1%E0%B8%87%E0%B8%81%E0%B9%8C%E0%B8%8A%E0%B8%B1%E0%B8%99%E0%B8%A7%E0%B8%B2%E0%B8%A3%E0%B9%8C%E0%B8%9B%E0%B9%84%E0%B8%9B%E0%B8%A8%E0%B8%B1%E0%B8%95%E0%B8%A3%E0%B8%B9%20(XZ%20Offset%20%2B%20%E0%B8%9B%E0%B9%89%E0%B8%AD%E0%B8%87%E0%B8%81%E0%B8%B1%E0%B8%99%E0%B8%95%E0%B8%81%E0%B9%82%E0%B8%A5%E0%B8%81%20%2B%20%E0%B8%AB%E0%B8%B2%E0%B8%9E%E0%B8%B7%E0%B9%89%E0%B8%99)%0Alocal%20function%20teleportToEnemyPart(enemyPart%2C%20offsetDistance)%0A%09local%20hrp%20%3D%20getHRP()%0A%09if%20not%20(enemyPart%20and%20hrp%20and%20enemyPart%3AIsDescendantOf(workspace))%20then%20return%20false%20end%0A%0A%09local%20direction%20%3D%20(enemyPart.Position%20-%20hrp.Position).Unit%0A%09local%20distance%20%3D%20(enemyPart.Position%20-%20hrp.Position).Magnitude%0A%0A%09--%20%E0%B8%88%E0%B8%B8%E0%B8%94%E0%B9%80%E0%B8%9B%E0%B9%89%E0%B8%B2%E0%B8%AB%E0%B8%A1%E0%B8%B2%E0%B8%A2%E0%B9%81%E0%B8%99%E0%B8%A7%E0%B8%99%E0%B8%AD%E0%B8%99%20XZ%20(%E0%B8%A2%E0%B8%B1%E0%B8%87%E0%B9%84%E0%B8%A1%E0%B9%88%E0%B9%83%E0%B8%AA%E0%B9%88%20Y)%0A%09local%20targetXZ%20%3D%20enemyPart.Position%20-%20Vector3.new(direction.X%2C%200%2C%20direction.Z)%20*%20offsetDistance%0A%0A%09--%20%F0%9F%94%8E%20Raycast%20%E0%B8%AB%E0%B8%B2%E0%B8%9E%E0%B8%B7%E0%B9%89%E0%B8%99%E0%B9%83%E0%B8%95%E0%B9%89%E0%B8%95%E0%B8%B3%E0%B9%81%E0%B8%AB%E0%B8%99%E0%B9%88%E0%B8%87%E0%B9%80%E0%B8%9B%E0%B9%89%E0%B8%B2%E0%B8%AB%E0%B8%A1%E0%B8%B2%E0%B8%A2%0A%09local%20rayOrigin%20%3D%20Vector3.new(targetXZ.X%2C%20enemyPart.Position.Y%20%2B%2010%2C%20targetXZ.Z)%0A%09local%20rayDirection%20%3D%20Vector3.new(0%2C%20-100%2C%200)%0A%09local%20raycastParams%20%3D%20RaycastParams.new()%0A%09raycastParams.FilterDescendantsInstances%20%3D%20%7BenemyPart%7D%0A%09raycastParams.FilterType%20%3D%20Enum.RaycastFilterType.Exclude%0A%0A%09local%20result%20%3D%20workspace%3ARaycast(rayOrigin%2C%20rayDirection%2C%20raycastParams)%0A%09local%20groundY%20%3D%20result%20and%20result.Position.Y%20or%20enemyPart.Position.Y%0A%0A%09--%20%E0%B9%80%E0%B8%9E%E0%B8%B4%E0%B9%88%E0%B8%A1%E0%B8%84%E0%B8%A7%E0%B8%B2%E0%B8%A1%E0%B8%AA%E0%B8%B9%E0%B8%87%E0%B8%AD%E0%B8%B5%E0%B8%81%E0%B8%99%E0%B8%B4%E0%B8%94%E0%B8%81%E0%B8%B1%E0%B8%99%E0%B8%88%E0%B8%A1%E0%B8%9E%E0%B8%B7%E0%B9%89%E0%B8%99%0A%09local%20targetPos%20%3D%20Vector3.new(targetXZ.X%2C%20groundY%20%2B%203%2C%20targetXZ.Z)%0A%0A%09--%20%E0%B8%96%E0%B9%89%E0%B8%B2%E0%B9%84%E0%B8%81%E0%B8%A5%E0%B9%80%E0%B8%81%E0%B8%B4%E0%B8%99%E0%B8%AB%E0%B8%A3%E0%B8%B7%E0%B8%AD%20Y%20%3C%20-10%20%E2%86%92%20%E0%B8%A7%E0%B8%B2%E0%B8%A3%E0%B9%8C%E0%B8%9B%E0%B8%97%E0%B8%B1%E0%B8%99%E0%B8%97%E0%B8%B5%0A%09if%20distance%20%3E%20500%20or%20hrp.Position.Y%20%3C%20-10%20then%0A%09%09hrp.CFrame%20%3D%20CFrame.new(targetPos)%0A%09%09return%20false%0A%09end%0A%0A%09--%20Tween%20%E0%B9%80%E0%B8%84%E0%B8%A5%E0%B8%B7%E0%B9%88%E0%B8%AD%E0%B8%99%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B8%99%E0%B8%B8%E0%B9%88%E0%B8%A1%E0%B8%99%E0%B8%A7%E0%B8%A5%0A%09if%20currentTween%20then%20currentTween%3ACancel()%20end%0A%09local%20tweenTime%20%3D%20math.clamp(distance%20%2F%20(farmSpeed%20*%20100)%2C%200.1%2C%201)%0A%09local%20tweenInfo%20%3D%20TweenInfo.new(tweenTime%2C%20Enum.EasingStyle.Linear)%0A%09currentTween%20%3D%20TweenService%3ACreate(hrp%2C%20tweenInfo%2C%20%7BCFrame%20%3D%20CFrame.new(targetPos)%7D)%0A%09currentTween%3APlay()%0A%09task.wait(tweenTime)%0A%0A%09return%20true%0Aend%0A--------------------------------------------------------%0A--%20%E2%9A%94%EF%B8%8F%20%E0%B8%9F%E0%B8%B1%E0%B8%87%E0%B8%81%E0%B9%8C%E0%B8%8A%E0%B8%B1%E0%B8%99%E0%B8%AB%E0%B8%A5%E0%B8%B1%E0%B8%81%20Auto%20Farm%0A--------------------------------------------------------%0Alocal%20function%20autoFarm()%0A%09while%20AutoFarmEnabled%20do%0A%09%09local%20hrp%20%3D%20getHRP()%0A%09%09if%20not%20hrp%20then%0A%09%09%09task.wait(1)%0A%09%09%09continue%0A%09%09end%0A%0A%09%09local%20enemyPart%20%3D%20getClosestEnemyPart()%0A%09%09if%20enemyPart%20then%0A%09%09%09local%20success%20%3D%20teleportToEnemyPart(enemyPart%2C%20teleportDistance)%0A%0A%09%09%09--%20%E2%9D%8C%20%E0%B8%96%E0%B9%89%E0%B8%B2%E0%B8%95%E0%B8%81%E0%B9%82%E0%B8%A5%E0%B8%81%E0%B8%AB%E0%B8%A3%E0%B8%B7%E0%B8%AD%E0%B8%A7%E0%B8%B2%E0%B8%A3%E0%B9%8C%E0%B8%9B%E0%B8%81%E0%B8%A5%E0%B8%B1%E0%B8%9A%20(return%20false)%20%E2%86%92%20%E0%B8%82%E0%B9%89%E0%B8%B2%E0%B8%A1%20loop%20%E0%B8%99%E0%B8%B5%E0%B9%89%E0%B8%97%E0%B8%B1%E0%B8%99%E0%B8%97%E0%B8%B5%0A%09%09%09if%20not%20success%20then%0A%09%09%09%09task.wait(0.5)%0A%09%09%09%09continue%0A%09%09%09end%0A%0A%09%09%09--%20%F0%9F%94%81%20%E0%B8%95%E0%B8%B5%E0%B8%88%E0%B8%99%E0%B8%A8%E0%B8%B1%E0%B8%95%E0%B8%A3%E0%B8%B9%E0%B8%95%E0%B8%B2%E0%B8%A2%0A%09%09%09while%20AutoFarmEnabled%20do%0A%09%09%09%09if%20not%20(enemyPart%20and%20enemyPart.Parent)%20then%20break%20end%0A%09%09%09%09local%20hp%20%3D%20enemyPart%3AGetAttribute(%22HP%22)%0A%09%09%09%09if%20not%20hp%20or%20hp%20%3C%3D%200%20then%0A%09%09%09%09%09task.wait(0.2)%0A%09%09%09%09%09break%0A%09%09%09%09end%0A%09%09%09%09task.wait(0.05)%0A%09%09%09end%0A%09%09else%0A%09%09%09task.wait(0.5)%0A%09%09end%0A%09%09task.wait(0.05)%0A%09end%0Aend%0A--------------------------------------------------------%0A--%20%E2%99%BB%EF%B8%8F%20%E0%B8%9F%E0%B8%B1%E0%B8%87%E0%B8%81%E0%B9%8C%E0%B8%8A%E0%B8%B1%E0%B8%99%E0%B9%80%E0%B8%A3%E0%B8%B4%E0%B9%88%E0%B8%A1%E0%B8%AB%E0%B8%A5%E0%B8%B1%E0%B8%87%E0%B8%A3%E0%B8%B5%E0%B9%80%E0%B8%81%E0%B8%B4%E0%B8%94%0A--------------------------------------------------------%0Alocal%20function%20safeStartAutoFarm()%0A%09task.defer(function()%0A%09%09while%20true%20do%0A%09%09%09if%20AutoFarmEnabled%20then%0A%09%09%09%09local%20hrp%20%3D%20getHRP()%0A%09%09%09%09if%20hrp%20then%0A%09%09%09%09%09task.spawn(autoFarm)%0A%09%09%09%09%09break%0A%09%09%09%09end%0A%09%09%09end%0A%09%09%09task.wait(1)%0A%09%09end%0A%09end)%0Aend%0A%0Aplayer.CharacterAdded%3AConnect(function(newChar)%0A%09task.wait(1)%0A%09character%20%3D%20newChar%0A%09humanoidRootPart%20%3D%20newChar%3AWaitForChild(%22HumanoidRootPart%22)%0A%0A%09if%20AutoFarmEnabled%20then%0A%09%09task.wait(0.5)%0A%09%09safeStartAutoFarm()%0A%09end%0Aend)%0A%0A--------------------------------------------------------%0A--%20%F0%9F%8E%9B%EF%B8%8F%20UI%20Controls%0A--------------------------------------------------------%0ADungeontTab%3ACreateToggle(%7B%0A%09Name%20%3D%20%22Auto%20Farm%22%2C%0A%09CurrentValue%20%3D%20false%2C%0A%09Flag%20%3D%20%22AutoFarm%22%2C%0A%09Callback%20%3D%20function(Value)%0A%09%09AutoFarmEnabled%20%3D%20Value%0A%09%09if%20Value%20then%0A%09%09%09local%20hrp%20%3D%20getHRP()%0A%09%09%09if%20hrp%20then%0A%09%09%09%09local%20firstEnemy%20%3D%20getClosestEnemyPart()%0A%09%09%09%09if%20firstEnemy%20then%0A%09%09%09%09%09--%20%E0%B8%A7%E0%B8%B2%E0%B8%A3%E0%B9%8C%E0%B8%9B%E0%B9%84%E0%B8%9B%E0%B8%A8%E0%B8%B1%E0%B8%95%E0%B8%A3%E0%B8%B9%E0%B8%94%E0%B9%89%E0%B8%A7%E0%B8%A2%E0%B8%A3%E0%B8%B0%E0%B8%A2%E0%B8%B0%E0%B8%9B%E0%B8%A5%E0%B8%AD%E0%B8%94%E0%B8%A0%E0%B8%B1%E0%B8%A2%20XZ%0A%09%09%09%09%09local%20dir%20%3D%20(firstEnemy.Position%20-%20hrp.Position).Unit%0A%09%09%09%09%09hrp.CFrame%20%3D%20CFrame.new(firstEnemy.Position%20-%20Vector3.new(dir.X%2C%200%2C%20dir.Z)%20*%20teleportDistance)%0A%09%09%09%09end%0A%09%09%09end%0A%09%09%09task.spawn(autoFarm)%0A%09%09else%0A%09%09%09if%20currentTween%20then%0A%09%09%09%09currentTween%3ACancel()%0A%09%09%09%09currentTween%20%3D%20nil%0A%09%09%09end%0A%09%09end%0A%09end%2C%0A%7D)%0A%0ADungeontTab%3ACreateSlider(%7B%0A%09Name%20%3D%20%22Farm%20Speed%22%2C%0A%09Range%20%3D%20%7B1%2C%2010%7D%2C%0A%09Increment%20%3D%201%2C%0A%09CurrentValue%20%3D%20farmSpeed%2C%0A%09Flag%20%3D%20%22FarmSpeed%22%2C%0A%09Callback%20%3D%20function(Value)%0A%09%09farmSpeed%20%3D%20Value%0A%09end%2C%0A%7D)%0A%0ADungeontTab%3ACreateSlider(%7B%0A%09Name%20%3D%20%22Teleport%20Distance%22%2C%0A%09Range%20%3D%20%7B5%2C%2020%7D%2C%0A%09Increment%20%3D%201%2C%0A%09CurrentValue%20%3D%20teleportDistance%2C%0A%09Flag%20%3D%20%22TeleportDistance%22%2C%0A%09Callback%20%3D%20function(Value)%0A%09%09teleportDistance%20%3D%20Value%0A%09end%2C%0A%7D)%0A%0A--%20%F0%9F%8C%B8%20Auto%20Dungeon%20System%20(By%20Maple)%0Alocal%20ReplicatedStorage%20%3D%20game%3AGetService(%22ReplicatedStorage%22)%0Alocal%20Workspace%20%3D%20game%3AGetService(%22Workspace%22)%0Alocal%20Players%20%3D%20game%3AGetService(%22Players%22)%0A%0Alocal%20player%20%3D%20Players.LocalPlayer%0Alocal%20character%20%3D%20player.Character%20or%20player.CharacterAdded%3AWait()%0A%0A--%20%F0%9F%94%B9%20%E0%B8%9F%E0%B8%B1%E0%B8%87%E0%B8%81%E0%B9%8C%E0%B8%8A%E0%B8%B1%E0%B8%99%E0%B8%94%E0%B8%B6%E0%B8%87%20HumanoidRootPart%20%E0%B8%9B%E0%B8%A5%E0%B8%AD%E0%B8%94%E0%B8%A0%E0%B8%B1%E0%B8%A2%0Alocal%20function%20getHRP()%0A%09local%20char%20%3D%20player.Character%20or%20player.CharacterAdded%3AWait()%0A%09return%20char%3AFindFirstChild(%22HumanoidRootPart%22)%0Aend%0A%0Alocal%20Remote%20%3D%20ReplicatedStorage%3AWaitForChild(%22BridgeNet2%22)%3AWaitForChild(%22dataRemoteEvent%22)%0A%0A--%20%E2%9C%85%20%E0%B8%95%E0%B8%B1%E0%B8%A7%E0%B9%81%E0%B8%9B%E0%B8%A3%E0%B8%AB%E0%B8%A5%E0%B8%B1%E0%B8%81%0Alocal%20AutoJoinEnabled%20%3D%20false%0Alocal%20AutoReplayEnabled%20%3D%20false%0Alocal%20joinRange%20%3D%2025%0Alocal%20enemiesFolder%20%3D%20Workspace%3AWaitForChild(%22__Main%22)%3AWaitForChild(%22__Enemies%22)%3AWaitForChild(%22Server%22)%0Alocal%20CreatingDungeon%20%3D%20false%20--%20%E0%B8%9B%E0%B9%89%E0%B8%AD%E0%B8%87%E0%B8%81%E0%B8%B1%E0%B8%99%E0%B8%8B%E0%B9%89%E0%B8%AD%E0%B8%99%0A%0A--%20%F0%9F%8C%B8%20%E0%B8%9F%E0%B8%B1%E0%B8%87%E0%B8%81%E0%B9%8C%E0%B8%8A%E0%B8%B1%E0%B8%99%E0%B8%97%E0%B8%B1%E0%B9%88%E0%B8%A7%E0%B9%84%E0%B8%9B%0Alocal%20function%20isInDungeon()%0A%09for%20_%2C%20obj%20in%20ipairs(Workspace%3AGetDescendants())%20do%0A%09%09if%20obj%3AIsA(%22Part%22)%20and%20obj%3AFindFirstChild(%22Type%22)%20and%20obj.Type.Value%20%3D%3D%20%22Dungeon%22%20then%0A%09%09%09return%20true%0A%09%09end%0A%09end%0A%09return%20false%0Aend%0A%0Alocal%20function%20isNearDungeonDoor()%0A%09local%20door%20%3D%20Workspace%3AFindFirstChild(%22__Main%22)%0A%09if%20door%20and%20door%3AFindFirstChild(%22__Dungeon%22)%20then%0A%09%09local%20dungeon%20%3D%20door.__Dungeon%3AFindFirstChild(%22Dungeon%22)%0A%09%09local%20hrp%20%3D%20getHRP()%0A%09%09if%20dungeon%20and%20hrp%20then%0A%09%09%09local%20distance%20%3D%20(hrp.Position%20-%20dungeon.Position).Magnitude%0A%09%09%09return%20distance%20%3C%3D%20joinRange%0A%09%09end%0A%09end%0A%09return%20false%0Aend%0A%0A--%20%F0%9F%8C%B8%20%E0%B8%9F%E0%B8%B1%E0%B8%87%E0%B8%81%E0%B9%8C%E0%B8%8A%E0%B8%B1%E0%B8%99%E0%B8%AB%E0%B8%A5%E0%B8%B1%E0%B8%81%E0%B8%82%E0%B8%AD%E0%B8%87%E0%B8%A3%E0%B8%B0%E0%B8%9A%E0%B8%9A%E0%B8%94%E0%B8%B1%E0%B8%99%E0%B9%80%E0%B8%88%E0%B8%B5%E0%B9%89%E0%B8%A2%E0%B8%99%0Alocal%20function%20buyTicket()%0A%09local%20args%20%3D%20%7B%0A%09%09%5B1%5D%20%3D%20%7B%0A%09%09%09%5B1%5D%20%3D%20%7B%0A%09%09%09%09%5B%22Type%22%5D%20%3D%20%22Gems%22%2C%0A%09%09%09%09%5B%22Event%22%5D%20%3D%20%22DungeonAction%22%2C%0A%09%09%09%09%5B%22Action%22%5D%20%3D%20%22BuyTicket%22%0A%09%09%09%7D%2C%0A%09%09%09%5B2%5D%20%3D%20%22%5C4%22%0A%09%09%7D%0A%09%7D%0A%09Remote%3AFireServer(unpack(args))%0Aend%0A%0Alocal%20function%20createDungeon()%0A%09local%20args%20%3D%20%7B%0A%09%09%5B1%5D%20%3D%20%7B%0A%09%09%09%5B1%5D%20%3D%20%7B%0A%09%09%09%09%5B%22Event%22%5D%20%3D%20%22DungeonAction%22%2C%0A%09%09%09%09%5B%22Action%22%5D%20%3D%20%22Create%22%0A%09%09%09%7D%2C%0A%09%09%09%5B2%5D%20%3D%20%22%5C4%22%0A%09%09%7D%0A%09%7D%0A%09Remote%3AFireServer(unpack(args))%0Aend%0A%0Alocal%20function%20startDungeon()%0A%09local%20args%20%3D%20%7B%0A%09%09%5B1%5D%20%3D%20%7B%0A%09%09%09%5B1%5D%20%3D%20%7B%0A%09%09%09%09%5B%22Event%22%5D%20%3D%20%22DungeonAction%22%2C%0A%09%09%09%09%5B%22Action%22%5D%20%3D%20%22Start%22%0A%09%09%09%7D%2C%0A%09%09%09%5B2%5D%20%3D%20%22%5C4%22%0A%09%09%7D%0A%09%7D%0A%09Remote%3AFireServer(unpack(args))%0Aend%0A%0A--%20%F0%9F%8C%B8%20%E0%B8%A3%E0%B8%A7%E0%B8%A1%E0%B8%9F%E0%B8%B1%E0%B8%87%E0%B8%81%E0%B9%8C%E0%B8%8A%E0%B8%B1%E0%B8%99%E0%B8%AA%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%87%20%2B%20%E0%B9%80%E0%B8%A3%E0%B8%B4%E0%B9%88%E0%B8%A1%E0%B9%83%E0%B8%99%E0%B8%84%E0%B8%A3%E0%B8%B1%E0%B9%89%E0%B8%87%E0%B9%80%E0%B8%94%E0%B8%B5%E0%B8%A2%E0%B8%A7%0Alocal%20function%20safeCreateAndStartDungeon()%0A%09if%20CreatingDungeon%20then%20return%20end%0A%09CreatingDungeon%20%3D%20true%0A%0A%09buyTicket()%0A%09task.wait(1)%0A%09createDungeon()%0A%09task.wait(2)%0A%09startDungeon()%0A%09task.wait(5)%0A%0A%09CreatingDungeon%20%3D%20false%0Aend%0A%0A--%20%F0%9F%8C%B8%20%E0%B8%A3%E0%B8%B0%E0%B8%9A%E0%B8%9A%20Auto%20Join%20Dungeon%0ADungeontTab%3ACreateToggle(%7B%0A%09Name%20%3D%20%22Auto%20Join%20Dungeon%22%2C%0A%09CurrentValue%20%3D%20false%2C%0A%09Flag%20%3D%20%22AutoJoinDungeon%22%2C%0A%09Callback%20%3D%20function(Value)%0A%09%09AutoJoinEnabled%20%3D%20Value%0A%09%09if%20Value%20then%0A%09%09%09task.spawn(function()%0A%09%09%09%09while%20AutoJoinEnabled%20do%0A%09%09%09%09%09if%20not%20isInDungeon()%20and%20isNearDungeonDoor()%20then%0A%09%09%09%09%09%09safeCreateAndStartDungeon()%0A%09%09%09%09%09end%0A%09%09%09%09%09task.wait(3)%0A%09%09%09%09end%0A%09%09%09end)%0A%09%09end%0A%09end%2C%0A%7D)%0A%0A--%20%F0%9F%8C%B8%20%E0%B8%A3%E0%B8%B0%E0%B8%9A%E0%B8%9A%20Auto%20Replay%20(%E0%B9%80%E0%B8%A3%E0%B8%B4%E0%B9%88%E0%B8%A1%E0%B9%83%E0%B8%AB%E0%B8%A1%E0%B9%88%E0%B9%80%E0%B8%A1%E0%B8%B7%E0%B9%88%E0%B8%AD%E0%B8%A1%E0%B8%AD%E0%B8%99%E0%B9%84%E0%B8%A1%E0%B9%88%E0%B9%80%E0%B8%AB%E0%B8%A5%E0%B8%B7%E0%B8%AD)%0Alocal%20function%20autoReplay()%0A%09while%20AutoReplayEnabled%20do%0A%09%09local%20enemiesAlive%20%3D%20false%0A%09%09for%20_%2C%20enemy%20in%20ipairs(enemiesFolder%3AGetChildren())%20do%0A%09%09%09if%20enemy%3AIsA(%22Model%22)%20or%20enemy%3AIsA(%22Part%22)%20then%0A%09%09%09%09enemiesAlive%20%3D%20true%0A%09%09%09%09break%0A%09%09%09end%0A%09%09end%0A%0A%09%09if%20not%20enemiesAlive%20then%0A%09%09%09task.wait(3)%0A%09%09%09local%20stillNoEnemies%20%3D%20true%0A%09%09%09for%20_%2C%20enemy%20in%20ipairs(enemiesFolder%3AGetChildren())%20do%0A%09%09%09%09if%20enemy%3AIsA(%22Model%22)%20or%20enemy%3AIsA(%22Part%22)%20then%0A%09%09%09%09%09stillNoEnemies%20%3D%20false%0A%09%09%09%09%09break%0A%09%09%09%09end%0A%09%09%09end%0A%0A%09%09%09if%20stillNoEnemies%20then%0A%09%09%09%09safeCreateAndStartDungeon()%0A%09%09%09end%0A%09%09end%0A%0A%09%09task.wait(3)%0A%09end%0Aend%0A%0ADungeontTab%3ACreateToggle(%7B%0A%09Name%20%3D%20%22Auto%20Replay%22%2C%0A%09CurrentValue%20%3D%20false%2C%0A%09Flag%20%3D%20%22AutoReplay%22%2C%0A%09Callback%20%3D%20function(Value)%0A%09%09AutoReplayEnabled%20%3D%20Value%0A%09%09if%20Value%20then%0A%09%09%09task.spawn(autoReplay)%0A%09%09end%0A%09end%2C%0A%7D)%0A%0A--%20%F0%9F%A7%A0%20%E0%B9%82%E0%B8%AB%E0%B8%A5%E0%B8%94%20config%20%E0%B8%81%E0%B8%A5%E0%B8%B1%E0%B8%9A%E0%B8%A1%E0%B8%B2%0ARayfield%3ALoadConfiguration()
+local Rayfield =3D loadstring(game:HttpGet('https://sirius.menu/rayfield')=
+)()
+local Window =3D Rayfield:CreateWindow({
+    Name =3D "Maple Hub",
+    LoadingTitle =3D "Maple Hub Loading...",
+    LoadingSubtitle =3D "by Piphoppat",
+    ConfigurationSaving =3D {
+        Enabled =3D true,                -- =E2=9C=85 =E0=B9=80=E0=B8=9B=
+=E0=B8=B4=E0=B8=94=E0=B8=A3=E0=B8=B0=E0=B8=9A=E0=B8=9A=E0=B9=80=E0=B8=8B=
+=E0=B8=9F
+        FolderName =3D "MapleHub",       -- =F0=9F=93=82 =E0=B8=8A=E0=B8=
+=B7=E0=B9=88=E0=B8=AD=E0=B9=82=E0=B8=9F=E0=B8=A5=E0=B9=80=E0=B8=94=E0=B8=
+=AD=E0=B8=A3=E0=B9=8C=E0=B8=A2=E0=B9=88=E0=B8=AD=E0=B8=A2
+        FileName =3D "MapleConfig"       -- =F0=9F=93=84 =E0=B8=8A=E0=B8=
+=B7=E0=B9=88=E0=B8=AD=E0=B9=84=E0=B8=9F=E0=B8=A5=E0=B9=8C config
+    },
+    Discord =3D {
+        Enabled =3D false,
+        Invite =3D "",
+        RememberJoins =3D false
+    },
+    KeySystem =3D false
+})
+
+local INFOSTab =3D Window:CreateTab("INFOS", 4483362458)
+local INFOSSection =3D INFOSTab:CreateSection("INFOS Settings")
+
+local SavedPosition -- =E0=B9=80=E0=B8=81=E0=B9=87=E0=B8=9A=E0=B8=95=E0=B8=
+=B3=E0=B9=81=E0=B8=AB=E0=B8=99=E0=B9=88=E0=B8=87=E0=B8=9C=E0=B8=B9=E0=B9=
+=89=E0=B9=80=E0=B8=A5=E0=B9=88=E0=B8=99
+
+INFOSTab:CreateButton({
+Name =3D "Save Position",
+    Callback =3D function()
+        local player =3D game.Players.LocalPlayer
+      local Players =3D game:GetService("Players")
+local TweenService =3D game:GetService("TweenService")
+local ReplicatedStorage =3D game:GetService("ReplicatedStorage")
+local Workspace =3D game:GetService("Workspace")
+
+local player =3D Players.LocalPlayer
+local character =3D player.Character or player.CharacterAdded:Wait()
+local humanoidRootPart =3D character:WaitForChild("HumanoidRootPart")
+
+-- =F0=9F=94=81 =E0=B9=82=E0=B8=9F=E0=B8=A5=E0=B9=80=E0=B8=94=E0=B8=AD=E0=
+=B8=A3=E0=B9=8C=E0=B8=A8=E0=B8=B1=E0=B8=95=E0=B8=A3=E0=B8=B9
+local enemiesFolder =3D workspace:WaitForChild("=5F=5FMain"):WaitForChild(=
+"=5F=5FEnemies"):WaitForChild("Server")
+
+-- =E2=9A=99=EF=B8=8F =E0=B8=95=E0=B8=B1=E0=B8=A7=E0=B9=81=E0=B8=9B=E0=B8=
+=A3=E0=B8=AB=E0=B8=A5=E0=B8=B1=E0=B8=81
+local AutoFarmEnabled =3D false
+local farmSpeed =3D 5
+local currentTween
+
+--------------------------------------------------------
+-- =F0=9F=A7=AD =E0=B8=9F=E0=B8=B1=E0=B8=87=E0=B8=81=E0=B9=8C=E0=B8=8A=E0=
+=B8=B1=E0=B8=99=E0=B8=8A=E0=B9=88=E0=B8=A7=E0=B8=A2=E0=B8=9E=E0=B8=B7=E0=
+=B9=89=E0=B8=99=E0=B8=90=E0=B8=B2=E0=B8=99
+--------------------------------------------------------
+
+-- =F0=9F=94=B9 =E0=B8=94=E0=B8=B6=E0=B8=87 HumanoidRootPart =E0=B8=9B=E0=
+=B8=A5=E0=B8=AD=E0=B8=94=E0=B8=A0=E0=B8=B1=E0=B8=A2 (=E0=B8=81=E0=B8=B1=E0=
+=B8=99 Nil)
+local function getHRP()
+=9local char =3D player.Character or player.CharacterAdded:Wait()
+=9return char:FindFirstChild("HumanoidRootPart")
+end
+
+-- =F0=9F=94=8E =E0=B8=AB=E0=B8=B2 Part =E0=B8=A8=E0=B8=B1=E0=B8=95=E0=B8=
+=A3=E0=B8=B9=E0=B8=97=E0=B8=B5=E0=B9=88=E0=B9=83=E0=B8=81=E0=B8=A5=E0=B9=
+=89=E0=B8=95=E0=B8=B1=E0=B8=A7=E0=B8=97=E0=B8=B5=E0=B9=88=E0=B8=AA=E0=B8=
+=B8=E0=B8=94 (HP > 0)
+local function getClosestEnemyPart()
+=9local closestPart
+=9local shortestDistance =3D math.huge
+
+=9for =5F, part in ipairs(enemiesFolder:GetChildren()) do
+=9=9if part:IsA("Part") and part:IsDescendantOf(workspace) then
+=9=9=9local hp =3D part:GetAttribute("HP")
+=9=9=9if hp and hp > 0 then
+=9=9=9=9local hrp =3D getHRP()
+=9=9=9=9if hrp then
+=9=9=9=9=9local distance =3D (part.Position - hrp.Position).Magnitude
+=9=9=9=9=9if distance < shortestDistance then
+=9=9=9=9=9=9shortestDistance =3D distance
+=9=9=9=9=9=9closestPart =3D part
+=9=9=9=9=9end
+=9=9=9=9end
+=9=9=9end
+=9=9end
+=9end
+
+=9return closestPart
+end
+
+-- =F0=9F=A7=A9 =E0=B8=9F=E0=B8=B1=E0=B8=87=E0=B8=81=E0=B9=8C=E0=B8=8A=E0=
+=B8=B1=E0=B8=99=E0=B8=A7=E0=B8=B2=E0=B8=A3=E0=B9=8C=E0=B8=9B=E0=B9=84=E0=
+=B8=9B=E0=B8=A8=E0=B8=B1=E0=B8=95=E0=B8=A3=E0=B8=B9 (=E0=B8=A1=E0=B8=B5=E0=
+=B8=A3=E0=B8=B0=E0=B8=9A=E0=B8=9A=E0=B8=81=E0=B8=B1=E0=B8=99=E0=B8=95=E0=
+=B8=81=E0=B9=82=E0=B8=A5=E0=B8=81)
+local function teleportToEnemyPart(enemyPart, offsetDistance)
+=9local hrp =3D getHRP()
+=9if not (enemyPart and hrp and enemyPart:IsDescendantOf(workspace)) then =
+return end
+
+=9local direction =3D (enemyPart.Position - hrp.Position).Unit
+=9local distance =3D (enemyPart.Position - hrp.Position).Magnitude
+=9local targetPos =3D enemyPart.Position - direction * offsetDistance
+
+=9-- =F0=9F=92=A1 =E0=B8=96=E0=B9=89=E0=B8=B2=E0=B9=84=E0=B8=81=E0=B8=A5=
+=E0=B9=80=E0=B8=81=E0=B8=B4=E0=B8=99 300 stud =E0=B9=83=E0=B8=AB=E0=B9=89=
+=E0=B9=80=E0=B8=97=E0=B9=80=E0=B8=A5=E0=B8=9E=E0=B8=AD=E0=B8=A3=E0=B9=8C=
+=E0=B8=95=E0=B8=97=E0=B8=B1=E0=B8=99=E0=B8=97=E0=B8=B5
+=9if distance > 300 or hrp.Position.Y < -10 then
+=9=9hrp.CFrame =3D CFrame.new(targetPos + Vector3.new(0, 5, 0))
+=9=9return
+=9end
+
+=9-- =F0=9F=8C=80 Tween =E0=B8=82=E0=B8=A2=E0=B8=B1=E0=B8=9A=E0=B9=80=E0=
+=B8=82=E0=B9=89=E0=B8=B2=E0=B9=83=E0=B8=81=E0=B8=A5=E0=B9=89
+=9if currentTween then currentTween:Cancel() end
+=9local tweenTime =3D math.clamp(distance / (farmSpeed * 100), 0.1, 1)
+=9local tweenInfo =3D TweenInfo.new(tweenTime, Enum.EasingStyle.Linear)
+=9currentTween =3D TweenService:Create(hrp, tweenInfo, {CFrame =3D CFrame.=
+new(targetPos)})
+=9currentTween:Play()
+=9task.wait(tweenTime)
+end
+
+--------------------------------------------------------
+-- =E2=9A=94=EF=B8=8F =E0=B8=9F=E0=B8=B1=E0=B8=87=E0=B8=81=E0=B9=8C=E0=B8=
+=8A=E0=B8=B1=E0=B8=99=E0=B8=AB=E0=B8=A5=E0=B8=B1=E0=B8=81 Auto Farm
+--------------------------------------------------------
+
+local function autoFarm()
+=9while AutoFarmEnabled do
+=9=9local hrp =3D getHRP()
+=9=9if not hrp then
+=9=9=9task.wait(1)
+=9=9=9continue
+=9=9end
+
+=9=9local enemyPart =3D getClosestEnemyPart()
+=9=9if enemyPart then
+=9=9=9teleportToEnemyPart(enemyPart, 5)
+
+=9=9=9-- =F0=9F=94=81 =E0=B8=95=E0=B8=B5=E0=B8=88=E0=B8=99=E0=B8=A8=E0=B8=
+=B1=E0=B8=95=E0=B8=A3=E0=B8=B9=E0=B8=95=E0=B8=B2=E0=B8=A2
+=9=9=9while AutoFarmEnabled do
+=9=9=9=9if not (enemyPart and enemyPart.Parent) then break end
+=9=9=9=9local hp =3D enemyPart:GetAttribute("HP")
+=9=9=9=9if not hp or hp <=3D 0 then
+=9=9=9=9=9task.wait(0.2)
+=9=9=9=9=9break
+=9=9=9=9end
+=9=9=9=9task.wait(0.05)
+=9=9=9end
+=9=9else
+=9=9=9task.wait(0.5)
+=9=9end
+=9=9task.wait(0.05)
+=9end
+end
+
+--------------------------------------------------------
+-- =E2=99=BB=EF=B8=8F =E0=B8=9F=E0=B8=B1=E0=B8=87=E0=B8=81=E0=B9=8C=E0=B8=
+=8A=E0=B8=B1=E0=B8=99=E0=B9=80=E0=B8=A3=E0=B8=B4=E0=B9=88=E0=B8=A1=E0=B8=
+=AB=E0=B8=A5=E0=B8=B1=E0=B8=87=E0=B8=A3=E0=B8=B5=E0=B9=80=E0=B8=81=E0=B8=
+=B4=E0=B8=94
+--------------------------------------------------------
+
+local function safeStartAutoFarm()
+=9task.defer(function()
+=9=9while true do
+=9=9=9if AutoFarmEnabled then
+=9=9=9=9local hrp =3D getHRP()
+=9=9=9=9if hrp then
+=9=9=9=9=9task.spawn(autoFarm)
+=9=9=9=9=9break
+=9=9=9=9end
+=9=9=9end
+=9=9=9task.wait(1)
+=9=9end
+=9end)
+end
+
+player.CharacterAdded:Connect(function(newChar)
+=9task.wait(1)
+=9character =3D newChar
+=9humanoidRootPart =3D newChar:WaitForChild("HumanoidRootPart")
+
+=9if AutoFarmEnabled then
+=9=9task.wait(0.5)
+=9=9safeStartAutoFarm()
+=9end
+end)
+
+--------------------------------------------------------
+-- =F0=9F=8E=9B=EF=B8=8F UI Controls
+--------------------------------------------------------
+
+DungeontTab:CreateToggle({
+=9Name =3D "Auto Farm",
+=9CurrentValue =3D false,
+=9Flag =3D "AutoFarm",
+=9Callback =3D function(Value)
+=9=9AutoFarmEnabled =3D Value
+=9=9if Value then
+=9=9=9local hrp =3D getHRP()
+=9=9=9if hrp then
+=9=9=9=9local firstEnemy =3D getClosestEnemyPart()
+=9=9=9=9if firstEnemy then
+=9=9=9=9=9hrp.CFrame =3D CFrame.new(firstEnemy.Position + Vector3.new(0, 5=
+, 0))
+=9=9=9=9end
+=9=9=9end
+=9=9=9task.spawn(autoFarm)
+=9=9else
+=9=9=9if currentTween then
+=9=9=9=9currentTween:Cancel()
+=9=9=9=9currentTween =3D nil
+=9=9=9end
+=9=9end
+=9end,
+})
+
+DungeontTab:CreateSlider({
+=9Name =3D "Farm Speed",
+=9Range =3D {1, 10},
+=9Increment =3D 1,
+=9CurrentValue =3D farmSpeed,
+=9Flag =3D "FarmSpeed",
+=9Callback =3D function(Value)
+=9=9farmSpeed =3D Value
+=9end,
+})  if player and player.Character and player.Character:FindFirstChild("Hu=
+manoidRootPart") then
+            SavedPosition =3D player.Character.HumanoidRootPart.Position
+            print("Position Saved:", SavedPosition)
+            else
+            print("Cannot save position, character not found")
+        end
+    end,
+})
+
+INFOSTab:CreateButton({
+    Name =3D "Teleport to Save Position",
+    Callback =3D function()
+        local player =3D game.Players.LocalPlayer
+        if SavedPosition and player and player.Character and player.Charac=
+ter:FindFirstChild("HumanoidRootPart") then
+            player.Character.HumanoidRootPart.CFrame =3D CFrame.new(SavedP=
+osition)
+            print("Teleported to saved position")
+            else
+            print("No saved position or character not found")
+        end
+    end,
+})
+
+local Players =3D game:GetService("Players")
+local ReplicatedStorage =3D game:GetService("ReplicatedStorage")
+local player =3D Players.LocalPlayer
+local BridgeEvent =3D ReplicatedStorage:WaitForChild("BridgeNet2"):WaitFor=
+Child("dataRemoteEvent")
+
+local SellpetSection =3D INFOSTab:CreateSection("Auto Sell Settings")
+
+local AutoSellEnabled =3D false
+local connection -- =E0=B9=84=E0=B8=A7=E0=B9=89=E0=B9=80=E0=B8=81=E0=B9=87=
+=E0=B8=9A event =E0=B9=80=E0=B8=9E=E0=B8=B7=E0=B9=88=E0=B8=AD=E0=B8=AB=E0=
+=B8=A2=E0=B8=B8=E0=B8=94=E0=B8=95=E0=B8=AD=E0=B8=99=E0=B8=9B=E0=B8=B4=E0=
+=B8=94=E0=B8=A3=E0=B8=B0=E0=B8=9A=E0=B8=9A
+
+INFOSTab:CreateToggle({
+    Name =3D "Auto Sell (Rank E-UGM+)",
+    CurrentValue =3D false,
+    Flag =3D "AutoSell",
+    Callback =3D function(Value)
+        AutoSellEnabled =3D Value
+
+        if AutoSellEnabled then
+            -- =E0=B8=AB=E0=B8=B2=E0=B9=82=E0=B8=9F=E0=B8=A5=E0=B9=80=E0=
+=B8=94=E0=B8=AD=E0=B8=A3=E0=B9=8C Pets
+            local petsFolder =3D player:FindFirstChild("leaderstats")
+            if petsFolder then
+                petsFolder =3D petsFolder:FindFirstChild("Inventory")
+                if petsFolder then
+                    petsFolder =3D petsFolder:FindFirstChild("Pets")
+                end
+            end
+
+            if not petsFolder then
+                return
+            end
+
+            -- =E0=B8=9F=E0=B8=B1=E0=B8=87=E0=B8=81=E0=B9=8C=E0=B8=8A=E0=
+=B8=B1=E0=B8=99=E0=B8=82=E0=B8=B2=E0=B8=A2 pet =E0=B8=97=E0=B8=B5=E0=B9=88=
+ rank 1=E2=80=9310
+            local function sellLowRankPets(pet)
+                if not AutoSellEnabled then return end
+                if pet and pet:IsA("Folder") then
+                    local rankValue =3D pet:GetAttribute("Rank")
+                    if typeof(rankValue) =3D=3D "number" and rankValue >=
+=3D 1 and rankValue <=3D 16 then
+                        local args =3D {
+                            [1] =3D {
+                                [1] =3D {
+                                    ["Event"] =3D "SellPet",
+                                    ["Pets"] =3D { pet.Name }
+                                },
+                                [2] =3D "\7"
+                            }
+                        }
+                        BridgeEvent:FireServer(unpack(args))
+                    end
+                end
+            end
+
+            -- =E0=B8=82=E0=B8=B2=E0=B8=A2 pet =E0=B8=97=E0=B8=B5=E0=B9=88=
+=E0=B8=A1=E0=B8=B5=E0=B8=AD=E0=B8=A2=E0=B8=B9=E0=B9=88=E0=B9=81=E0=B8=A5=
+=E0=B9=89=E0=B8=A7 (=E0=B8=96=E0=B9=89=E0=B8=B2=E0=B8=A1=E0=B8=B5)
+            for =5F, pet in ipairs(petsFolder:GetChildren()) do
+                sellLowRankPets(pet)
+            end
+
+            -- =E0=B8=95=E0=B8=A3=E0=B8=A7=E0=B8=88=E0=B8=97=E0=B8=B8=E0=
+=B8=81=E0=B8=84=E0=B8=A3=E0=B8=B1=E0=B9=89=E0=B8=87=E0=B8=97=E0=B8=B5=E0=
+=B9=88=E0=B8=A1=E0=B8=B5 pet =E0=B9=83=E0=B8=AB=E0=B8=A1=E0=B9=88=E0=B9=80=
+=E0=B8=9E=E0=B8=B4=E0=B9=88=E0=B8=A1=E0=B9=80=E0=B8=82=E0=B9=89=E0=B8=B2=
+=E0=B8=A1=E0=B8=B2
+            connection =3D petsFolder.ChildAdded:Connect(function(pet)
+                sellLowRankPets(pet)
+            end)
+
+        else
+            -- =E0=B8=9B=E0=B8=B4=E0=B8=94=E0=B8=A3=E0=B8=B0=E0=B8=9A=E0=
+=B8=9A auto sell
+            if connection then
+                connection:Disconnect()
+                connection =3D nil
+            end
+        end
+    end,
+})
+
+local MainTab =3D Window:CreateTab("Main", 4483362458) -- =E0=B8=8A=E0=B8=
+=B7=E0=B9=88=E0=B8=AD tab + =E0=B9=84=E0=B8=AD=E0=B8=84=E0=B8=AD=E0=B8=99
+local MainSection =3D MainTab:CreateSection("Farming Settings")
+
+MainTab:CreateDropdown({
+    Name =3D "Select World",
+    Options =3D {"SoloWorld", "NarutoWorld", "OPWorld", "BleachWorld", "BC=
+World", "ChainsawWorld", "JojoWorld", "DBWorld", "OPMWorld", "DanWorld", "=
+Solo2World"},
+    CurrentOption =3D {"SoloWorld"},
+    Flag =3D "SelectedIsland",
+    Callback =3D function(Option)
+        print("Selected: " .. Option[1])
+    end,
+})
+
+MainTab:CreateDropdown({
+    Name =3D "Select Enemies",
+    Options =3D {"Enemies 1", "Enemies 2", "Enemies 3"},
+    CurrentOption =3D {"Enemies 1"},
+    Flag =3D "SelectedEnemies",
+    Callback =3D function(Option)
+        print("Selected: " .. Option[1])
+    end,
+})
+
+MainTab:CreateDropdown({
+    Name =3D "Enemies Type",
+    Options =3D {"Normal", "Big"},
+    CurrentOption =3D {"Normal"},
+    Flag =3D "SelectedType",
+    Callback =3D function(Option)
+        print("Selected: " .. Option[1])
+    end,
+})
+
+MainTab:CreateDropdown({
+    Name =3D "Move Mode",
+    Options =3D {"Slow", "Fast"},
+    CurrentOption =3D {"Slow"},
+    Flag =3D "SelectedType",
+    Callback =3D function(Option)
+        print("Selected: " .. Option[1])
+    end,
+})
+
+MainTab:CreateSlider({
+    Name =3D "Tween Speed",
+    Range =3D {100, 1000},
+    Increment =3D 1,
+    Suffix =3D "",
+    CurrentValue =3D 100,
+    Flag =3D "Tween Speed",
+    Callback =3D function(Value)
+        print("Speed =3D " .. Value)
+    end,
+})
+
+MainTab:CreateSlider({
+    Name =3D "Farm Delay",
+    Range =3D {0, 5},
+    Increment =3D 0.1,
+    Suffix =3D "",
+    CurrentValue =3D 0.1,
+    Flag =3D "Farm Delay",
+    Callback =3D function(Value)
+        print("Speed =3D " .. Value)
+    end,
+})
+
+MainTab:CreateToggle({
+    Name =3D "Auto Farm",
+    CurrentValue =3D false,
+    Flag =3D "AutoFarm",
+    Callback =3D function(Value)
+        if Value then
+            print("Auto Farm On")
+        else
+            print("Auto Farm Off")
+        end
+    end,
+})
+
+local ReplicatedStorage =3D game:GetService("ReplicatedStorage")
+local WepetEvent =3D ReplicatedStorage.=5F=5FAssets.WepetEvent
+
+MainTab:CreateToggle({
+    Name =3D "Auto Click",
+    CurrentValue =3D false,
+    Flag =3D "AutoClick",
+    Callback =3D function(Value)
+        print("=E0=B8=AA=E0=B8=96=E0=B8=B2=E0=B8=99=E0=B8=B0:", Value)
+        if Value then
+            -- =E0=B9=80=E0=B8=9B=E0=B8=B4=E0=B8=94 AutoClick
+            WepetEvent:Fire("AutoClick")
+        else
+            -- =E0=B8=9B=E0=B8=B4=E0=B8=94 AutoClick (=E0=B8=96=E0=B9=89=
+=E0=B8=B2=E0=B8=A1=E0=B8=B5=E0=B8=A3=E0=B8=B0=E0=B8=9A=E0=B8=9A=E0=B8=9B=
+=E0=B8=B4=E0=B8=94=E0=B9=83=E0=B8=99=E0=B9=80=E0=B8=81=E0=B8=A1)
+            WepetEvent:Fire("AutoClick") -- =E0=B8=9A=E0=B8=B2=E0=B8=87=E0=
+=B9=80=E0=B8=81=E0=B8=A1 toggle =E0=B9=80=E0=B8=94=E0=B8=B5=E0=B8=A2=E0=B8=
+=A7=E0=B8=81=E0=B8=B1=E0=B8=99=E0=B8=81=E0=B8=94=E0=B8=8B=E0=B9=89=E0=B8=
+=B3=E0=B9=80=E0=B8=9E=E0=B8=B7=E0=B9=88=E0=B8=AD=E0=B8=9B=E0=B8=B4=E0=B8=
+=94
+        end
+    end,
+})
+
+local TeleportTab =3D Window:CreateTab("Teleport", 4483362458)
+
+--------------------------------------------------
+-- =F0=9F=8C=B4 EVENT WORLD 1
+--------------------------------------------------
+local TeleportSection1 =3D TeleportTab:CreateSection("TeleportEvent World =
+1")
+
+local EventWorld1Positions =3D {
+    {Name =3D "Jeju Island", Position =3D Vector3.new(4016.08643, 48.60752=
+11, 3350.37573)},
+    {Name =3D "Halloween Island", Position =3D Vector3.new(-295.354584, 20=
+.6939487, -1739.28699)},
+}
+
+for =5F, world in ipairs(EventWorld1Positions) do
+    TeleportTab:CreateButton({
+        Name =3D world.Name,
+        Callback =3D function()
+            local player =3D game.Players.LocalPlayer
+            if player.Character and player.Character:FindFirstChild("Human=
+oidRootPart") then
+                player.Character.HumanoidRootPart.CFrame =3D CFrame.new(wo=
+rld.Position)
+            end
+        end
+    })
+end
+
+--------------------------------------------------
+-- =F0=9F=8E=83 EVENT WORLD 2
+--------------------------------------------------
+local TeleportSection2 =3D TeleportTab:CreateSection("TeleportEvent World =
+2")
+
+local EventWorld2Positions =3D {
+    {Name =3D "Halloween Island", Position =3D Vector3.new(-367.0876464843=
+75, 40.386661529541016, -1956.859619140625)},
+}
+
+for =5F, world in ipairs(EventWorld2Positions) do
+    TeleportTab:CreateButton({
+        Name =3D world.Name,
+        Callback =3D function()
+            local player =3D game.Players.LocalPlayer
+            if player.Character and player.Character:FindFirstChild("Human=
+oidRootPart") then
+                player.Character.HumanoidRootPart.CFrame =3D CFrame.new(wo=
+rld.Position)
+            end
+        end
+    })
+end
+
+--------------------------------------------------
+-- =F0=9F=8C=8E WORLD 1
+--------------------------------------------------
+local TeleportSection3 =3D TeleportTab:CreateSection("World 1")
+
+local World1Positions =3D {
+    {Name =3D "SoloWorld", Position =3D Vector3.new(452.069458, 15.2470932=
+, -22.7720184)},
+    {Name =3D "Grass Village", Position =3D Vector3.new(-3372.71191, 30.03=
+44715, 2252.61719)},
+    {Name =3D "Brum Lsland", Position =3D Vector3.new(-2844.155517578125, =
+50.02361297607422, -2016.807373046875)},
+    {Name =3D "Faceheal Town", Position =3D Vector3.new(2815.10229, 8.5139=
+246, -2734.53516)},
+    {Name =3D "Lucky Kingdom", Position =3D Vector3.new(196.180267, 40.207=
+6797, 4297.66455)},
+    {Name =3D "Nipon City", Position =3D Vector3.new(192.605652, 15.270538=
+3, -4293.87109)},
+    {Name =3D "Mori Town", Position =3D Vector3.new(4817.64258, 20.8282547=
+, -158.618042)},
+    {Name =3D "Dragon City", Position =3D Vector3.new(-2561.15479, 30.2231=
+064, 5871.14941)},
+    {Name =3D "XZ City", Position =3D Vector3.new(3321.18042, 20.2300873, =
+6384.54492)},
+    {Name =3D "Kindama City", Position =3D Vector3.new(-3383.6604, 25.4620=
+323, -84.0994873)},
+}
+
+for =5F, world in ipairs(World1Positions) do
+    TeleportTab:CreateButton({
+        Name =3D world.Name,
+        Callback =3D function()
+            local player =3D game.Players.LocalPlayer
+            if player.Character and player.Character:FindFirstChild("Human=
+oidRootPart") then
+                player.Character.HumanoidRootPart.CFrame =3D CFrame.new(wo=
+rld.Position)
+            end
+        end
+    })
+end
+
+--------------------------------------------------
+-- =F0=9F=8C=8D WORLD 2
+--------------------------------------------------
+local TeleportSection4 =3D TeleportTab:CreateSection("World 2")
+
+local World2Positions =3D {
+    {Name =3D "Hunters City", Position =3D Vector3.new(-241.06199645996094=
+, 15.942999839782715, -13.78600025177002)},
+    {Name =3D "Nen City", Position =3D Vector3.new(-5225.88671875, 35.8865=
+6234741211, -2923.06201171875)},
+    {Name =3D "Hurricane", Position =3D Vector3.new(-1289.09521484375, 47.=
+42665481567383, -5173.0888671875)},
+    {Name =3D "Cursed High", Position =3D Vector3.new(735.7350463867188, 5=
+8.68924331665039, 5018.86083984375)},
+    {Name =3D "Slayer's Village", Position =3D Vector3.new(-6852.651367187=
+5, 80.42222595214844, 1596.4384765625)},
+    {Name =3D "Kaiju City", Position =3D Vector3.new(5119.162109375, 101.4=
+6529388427734, 36.499000549316406)},
+    {Name =3D "Wall Kingdom", Position =3D Vector3.new(-9007.994140625, 85=
+.90940856933594, -1793.15625)},
+    {Name =3D "Shield Kingdom", Position =3D Vector3.new(-4769.32373046875=
+, 91.6708984375, -8029.35986328125)},
+    {Name =3D "Ghoul City", Position =3D Vector3.new(2589.732177734375, 91=
+.97673797607422, -4194.45068359375)},
+    {Name =3D "Eminance Kingdom", Position =3D Vector3.new(-4194.462402343=
+75, 120.6724624633789, 4690.453125)},
+    {Name =3D "Monach City", Position =3D Vector3.new(3715.7470703125, 128=
+.0664520263672, 3817.377685546875)},
+}
+
+for =5F, world in ipairs(World2Positions) do
+    TeleportTab:CreateButton({
+        Name =3D world.Name,
+        Callback =3D function()
+            local player =3D game.Players.LocalPlayer
+            if player.Character and player.Character:FindFirstChild("Human=
+oidRootPart") then
+                player.Character.HumanoidRootPart.CFrame =3D CFrame.new(wo=
+rld.Position)
+            end
+        end
+    })
+end
+
+
+local DungeontTab =3D Window:CreateTab("Dungeont", 4483362458)
+local DungeontSection =3D DungeontTab:CreateSection("Dungeont Settings")
+
+------------------------------------------------------
+-- =F0=9F=8C=B8 Auto Dungeont (Teleport when Dungeon appears)
+------------------------------------------------------
+
+local Players =3D game:GetService("Players")
+local player =3D Players.LocalPlayer
+
+local function getDungeonCFrame(dungeon)
+=9if dungeon:IsA("Model") then
+=9=9if dungeon.PrimaryPart then
+=9=9=9return dungeon.PrimaryPart.CFrame
+=9=9else
+=9=9=9-- =E0=B9=83=E0=B8=8A=E0=B9=89=E0=B8=95=E0=B8=B3=E0=B9=81=E0=B8=AB=
+=E0=B8=99=E0=B9=88=E0=B8=87=E0=B8=81=E0=B8=A5=E0=B8=B2=E0=B8=87=E0=B8=82=
+=E0=B8=AD=E0=B8=87 Model =E0=B8=96=E0=B9=89=E0=B8=B2=E0=B9=84=E0=B8=A1=E0=
+=B9=88=E0=B8=A1=E0=B8=B5 PrimaryPart
+=9=9=9local cframe, size =3D dungeon:GetBoundingBox()
+=9=9=9return cframe
+=9=9end
+=9elseif dungeon:IsA("BasePart") then
+=9=9return dungeon.CFrame
+=9end
+=9return nil
+end
+
+local function startAutoDungeon()
+=9task.spawn(function()
+=9=9local dungeonFolder =3D workspace:WaitForChild("=5F=5FMain"):WaitForCh=
+ild("=5F=5FDungeon")
+
+=9=9while AutoDungeontToggle.CurrentValue do
+=9=9=9local character =3D player.Character or player.CharacterAdded:Wait()=
+
+=9=9=9local hrp =3D character:WaitForChild("HumanoidRootPart")
+
+=9=9=9local dungeon =3D dungeonFolder:FindFirstChild("Dungeon")
+=9=9=9if dungeon then
+=9=9=9=9local targetCFrame =3D getDungeonCFrame(dungeon)
+=9=9=9=9if targetCFrame then
+=9=9=9=9=9hrp.CFrame =3D targetCFrame * CFrame.new(0, 5, 0)
+=9=9=9=9end
+=9=9=9else
+=9=9=9=9local newDungeon =3D dungeonFolder.ChildAdded:Wait()
+=9=9=9=9if newDungeon.Name =3D=3D "Dungeon" then
+=9=9=9=9=9local targetCFrame =3D getDungeonCFrame(newDungeon)
+=9=9=9=9=9if targetCFrame then
+=9=9=9=9=9=9hrp.CFrame =3D targetCFrame * CFrame.new(0, 5, 0)
+=9=9=9=9=9end
+=9=9=9=9end
+=9=9=9end
+
+=9=9=9task.wait(1)
+=9=9end
+=9end)
+end
+
+------------------------------------------------------
+-- =F0=9F=8C=B8 Toggle UI
+------------------------------------------------------
+AutoDungeontToggle =3D DungeontTab:CreateToggle({
+=9Name =3D "Auto Dungeont",
+=9CurrentValue =3D false,
+=9Flag =3D "AutoDungeont",
+=9Callback =3D function(Value)
+=9=9if Value then
+=9=9=9startAutoDungeon()
+=9=9end
+=9end,
+})
+
+-- =F0=9F=8C=80 AUTO FARM DUNGEON (Full Version by Maple)
+local Players =3D game:GetService("Players")
+local TweenService =3D game:GetService("TweenService")
+local ReplicatedStorage =3D game:GetService("ReplicatedStorage")
+local Workspace =3D game:GetService("Workspace")
+
+local player =3D Players.LocalPlayer
+local character =3D player.Character or player.CharacterAdded:Wait()
+local humanoidRootPart =3D character:WaitForChild("HumanoidRootPart")
+
+-- =F0=9F=94=81 =E0=B9=82=E0=B8=9F=E0=B8=A5=E0=B9=80=E0=B8=94=E0=B8=AD=E0=
+=B8=A3=E0=B9=8C=E0=B8=A8=E0=B8=B1=E0=B8=95=E0=B8=A3=E0=B8=B9
+local enemiesFolder =3D workspace:WaitForChild("=5F=5FMain"):WaitForChild(=
+"=5F=5FEnemies"):WaitForChild("Server")
+
+-- =E2=9A=99=EF=B8=8F =E0=B8=95=E0=B8=B1=E0=B8=A7=E0=B9=81=E0=B8=9B=E0=B8=
+=A3=E0=B8=AB=E0=B8=A5=E0=B8=B1=E0=B8=81
+local AutoFarmEnabled =3D false
+local farmSpeed =3D 5
+local teleportDistance =3D 5 -- =E0=B8=A3=E0=B8=B0=E0=B8=A2=E0=B8=B0=E0=B8=
+=AB=E0=B9=88=E0=B8=B2=E0=B8=87=E0=B8=88=E0=B8=B2=E0=B8=81=E0=B8=A8=E0=B8=
+=B1=E0=B8=95=E0=B8=A3=E0=B8=B9 (studs)
+local currentTween
+
+--------------------------------------------------------
+-- =F0=9F=A7=AD =E0=B8=9F=E0=B8=B1=E0=B8=87=E0=B8=81=E0=B9=8C=E0=B8=8A=E0=
+=B8=B1=E0=B8=99=E0=B8=8A=E0=B9=88=E0=B8=A7=E0=B8=A2=E0=B8=9E=E0=B8=B7=E0=
+=B9=89=E0=B8=99=E0=B8=90=E0=B8=B2=E0=B8=99
+--------------------------------------------------------
+
+-- =F0=9F=94=B9 =E0=B8=94=E0=B8=B6=E0=B8=87 HumanoidRootPart =E0=B8=9B=E0=
+=B8=A5=E0=B8=AD=E0=B8=94=E0=B8=A0=E0=B8=B1=E0=B8=A2
+local function getHRP()
+=9local char =3D player.Character or player.CharacterAdded:Wait()
+=9return char:FindFirstChild("HumanoidRootPart")
+end
+
+-- =F0=9F=94=8E =E0=B8=AB=E0=B8=B2 Part =E0=B8=A8=E0=B8=B1=E0=B8=95=E0=B8=
+=A3=E0=B8=B9=E0=B8=97=E0=B8=B5=E0=B9=88=E0=B9=83=E0=B8=81=E0=B8=A5=E0=B9=
+=89=E0=B8=95=E0=B8=B1=E0=B8=A7=E0=B8=97=E0=B8=B5=E0=B9=88=E0=B8=AA=E0=B8=
+=B8=E0=B8=94 (HP > 0)
+local function getClosestEnemyPart()
+=9local closestPart
+=9local shortestDistance =3D math.huge
+
+=9for =5F, part in ipairs(enemiesFolder:GetChildren()) do
+=9=9if part:IsA("Part") and part:IsDescendantOf(workspace) then
+=9=9=9local hp =3D part:GetAttribute("HP")
+=9=9=9if hp and hp > 0 then
+=9=9=9=9local hrp =3D getHRP()
+=9=9=9=9if hrp then
+=9=9=9=9=9local distance =3D (part.Position - hrp.Position).Magnitude
+=9=9=9=9=9if distance < shortestDistance then
+=9=9=9=9=9=9shortestDistance =3D distance
+=9=9=9=9=9=9closestPart =3D part
+=9=9=9=9=9end
+=9=9=9=9end
+=9=9=9end
+=9=9end
+=9end
+
+=9return closestPart
+end
+
+--------------------------------------------------------
+-- =F0=9F=A7=A9 =E0=B8=9F=E0=B8=B1=E0=B8=87=E0=B8=81=E0=B9=8C=E0=B8=8A=E0=
+=B8=B1=E0=B8=99=E0=B8=A7=E0=B8=B2=E0=B8=A3=E0=B9=8C=E0=B8=9B=E0=B9=84=E0=
+=B8=9B=E0=B8=A8=E0=B8=B1=E0=B8=95=E0=B8=A3=E0=B8=B9 (XZ Offset + =E0=B8=9B=
+=E0=B9=89=E0=B8=AD=E0=B8=87=E0=B8=81=E0=B8=B1=E0=B8=99=E0=B8=95=E0=B8=81=
+=E0=B9=82=E0=B8=A5=E0=B8=81)
+-- =F0=9F=A7=A9 =E0=B8=9F=E0=B8=B1=E0=B8=87=E0=B8=81=E0=B9=8C=E0=B8=8A=E0=
+=B8=B1=E0=B8=99=E0=B8=A7=E0=B8=B2=E0=B8=A3=E0=B9=8C=E0=B8=9B=E0=B9=84=E0=
+=B8=9B=E0=B8=A8=E0=B8=B1=E0=B8=95=E0=B8=A3=E0=B8=B9 (XZ Offset + =E0=B8=9B=
+=E0=B9=89=E0=B8=AD=E0=B8=87=E0=B8=81=E0=B8=B1=E0=B8=99=E0=B8=95=E0=B8=81=
+=E0=B9=82=E0=B8=A5=E0=B8=81 + =E0=B8=AB=E0=B8=B2=E0=B8=9E=E0=B8=B7=E0=B9=
+=89=E0=B8=99)
+local function teleportToEnemyPart(enemyPart, offsetDistance)
+=9local hrp =3D getHRP()
+=9if not (enemyPart and hrp and enemyPart:IsDescendantOf(workspace)) then =
+return false end
+
+=9local direction =3D (enemyPart.Position - hrp.Position).Unit
+=9local distance =3D (enemyPart.Position - hrp.Position).Magnitude
+
+=9-- =E0=B8=88=E0=B8=B8=E0=B8=94=E0=B9=80=E0=B8=9B=E0=B9=89=E0=B8=B2=E0=B8=
+=AB=E0=B8=A1=E0=B8=B2=E0=B8=A2=E0=B9=81=E0=B8=99=E0=B8=A7=E0=B8=99=E0=B8=
+=AD=E0=B8=99 XZ (=E0=B8=A2=E0=B8=B1=E0=B8=87=E0=B9=84=E0=B8=A1=E0=B9=88=E0=
+=B9=83=E0=B8=AA=E0=B9=88 Y)
+=9local targetXZ =3D enemyPart.Position - Vector3.new(direction.X, 0, dire=
+ction.Z) * offsetDistance
+
+=9-- =F0=9F=94=8E Raycast =E0=B8=AB=E0=B8=B2=E0=B8=9E=E0=B8=B7=E0=B9=89=E0=
+=B8=99=E0=B9=83=E0=B8=95=E0=B9=89=E0=B8=95=E0=B8=B3=E0=B9=81=E0=B8=AB=E0=
+=B8=99=E0=B9=88=E0=B8=87=E0=B9=80=E0=B8=9B=E0=B9=89=E0=B8=B2=E0=B8=AB=E0=
+=B8=A1=E0=B8=B2=E0=B8=A2
+=9local rayOrigin =3D Vector3.new(targetXZ.X, enemyPart.Position.Y + 10, t=
+argetXZ.Z)
+=9local rayDirection =3D Vector3.new(0, -100, 0)
+=9local raycastParams =3D RaycastParams.new()
+=9raycastParams.FilterDescendantsInstances =3D {enemyPart}
+=9raycastParams.FilterType =3D Enum.RaycastFilterType.Exclude
+
+=9local result =3D workspace:Raycast(rayOrigin, rayDirection, raycastParam=
+s)
+=9local groundY =3D result and result.Position.Y or enemyPart.Position.Y
+
+=9-- =E0=B9=80=E0=B8=9E=E0=B8=B4=E0=B9=88=E0=B8=A1=E0=B8=84=E0=B8=A7=E0=B8=
+=B2=E0=B8=A1=E0=B8=AA=E0=B8=B9=E0=B8=87=E0=B8=AD=E0=B8=B5=E0=B8=81=E0=B8=
+=99=E0=B8=B4=E0=B8=94=E0=B8=81=E0=B8=B1=E0=B8=99=E0=B8=88=E0=B8=A1=E0=B8=
+=9E=E0=B8=B7=E0=B9=89=E0=B8=99
+=9local targetPos =3D Vector3.new(targetXZ.X, groundY + 3, targetXZ.Z)
+
+=9-- =E0=B8=96=E0=B9=89=E0=B8=B2=E0=B9=84=E0=B8=81=E0=B8=A5=E0=B9=80=E0=B8=
+=81=E0=B8=B4=E0=B8=99=E0=B8=AB=E0=B8=A3=E0=B8=B7=E0=B8=AD Y < -10 =E2=86=
+=92 =E0=B8=A7=E0=B8=B2=E0=B8=A3=E0=B9=8C=E0=B8=9B=E0=B8=97=E0=B8=B1=E0=B8=
+=99=E0=B8=97=E0=B8=B5
+=9if distance > 500 or hrp.Position.Y < -10 then
+=9=9hrp.CFrame =3D CFrame.new(targetPos)
+=9=9return false
+=9end
+
+=9-- Tween =E0=B9=80=E0=B8=84=E0=B8=A5=E0=B8=B7=E0=B9=88=E0=B8=AD=E0=B8=99=
+=E0=B8=97=E0=B8=B5=E0=B9=88=E0=B8=99=E0=B8=B8=E0=B9=88=E0=B8=A1=E0=B8=99=
+=E0=B8=A7=E0=B8=A5
+=9if currentTween then currentTween:Cancel() end
+=9local tweenTime =3D math.clamp(distance / (farmSpeed * 100), 0.1, 1)
+=9local tweenInfo =3D TweenInfo.new(tweenTime, Enum.EasingStyle.Linear)
+=9currentTween =3D TweenService:Create(hrp, tweenInfo, {CFrame =3D CFrame.=
+new(targetPos)})
+=9currentTween:Play()
+=9task.wait(tweenTime)
+
+=9return true
+end
+--------------------------------------------------------
+-- =E2=9A=94=EF=B8=8F =E0=B8=9F=E0=B8=B1=E0=B8=87=E0=B8=81=E0=B9=8C=E0=B8=
+=8A=E0=B8=B1=E0=B8=99=E0=B8=AB=E0=B8=A5=E0=B8=B1=E0=B8=81 Auto Farm
+--------------------------------------------------------
+local function autoFarm()
+=9while AutoFarmEnabled do
+=9=9local hrp =3D getHRP()
+=9=9if not hrp then
+=9=9=9task.wait(1)
+=9=9=9continue
+=9=9end
+
+=9=9local enemyPart =3D getClosestEnemyPart()
+=9=9if enemyPart then
+=9=9=9local success =3D teleportToEnemyPart(enemyPart, teleportDistance)
+
+=9=9=9-- =E2=9D=8C =E0=B8=96=E0=B9=89=E0=B8=B2=E0=B8=95=E0=B8=81=E0=B9=82=
+=E0=B8=A5=E0=B8=81=E0=B8=AB=E0=B8=A3=E0=B8=B7=E0=B8=AD=E0=B8=A7=E0=B8=B2=
+=E0=B8=A3=E0=B9=8C=E0=B8=9B=E0=B8=81=E0=B8=A5=E0=B8=B1=E0=B8=9A (return fa=
+lse) =E2=86=92 =E0=B8=82=E0=B9=89=E0=B8=B2=E0=B8=A1 loop =E0=B8=99=E0=B8=
+=B5=E0=B9=89=E0=B8=97=E0=B8=B1=E0=B8=99=E0=B8=97=E0=B8=B5
+=9=9=9if not success then
+=9=9=9=9task.wait(0.5)
+=9=9=9=9continue
+=9=9=9end
+
+=9=9=9-- =F0=9F=94=81 =E0=B8=95=E0=B8=B5=E0=B8=88=E0=B8=99=E0=B8=A8=E0=B8=
+=B1=E0=B8=95=E0=B8=A3=E0=B8=B9=E0=B8=95=E0=B8=B2=E0=B8=A2
+=9=9=9while AutoFarmEnabled do
+=9=9=9=9if not (enemyPart and enemyPart.Parent) then break end
+=9=9=9=9local hp =3D enemyPart:GetAttribute("HP")
+=9=9=9=9if not hp or hp <=3D 0 then
+=9=9=9=9=9task.wait(0.2)
+=9=9=9=9=9break
+=9=9=9=9end
+=9=9=9=9task.wait(0.05)
+=9=9=9end
+=9=9else
+=9=9=9task.wait(0.5)
+=9=9end
+=9=9task.wait(0.05)
+=9end
+end
+--------------------------------------------------------
+-- =E2=99=BB=EF=B8=8F =E0=B8=9F=E0=B8=B1=E0=B8=87=E0=B8=81=E0=B9=8C=E0=B8=
+=8A=E0=B8=B1=E0=B8=99=E0=B9=80=E0=B8=A3=E0=B8=B4=E0=B9=88=E0=B8=A1=E0=B8=
+=AB=E0=B8=A5=E0=B8=B1=E0=B8=87=E0=B8=A3=E0=B8=B5=E0=B9=80=E0=B8=81=E0=B8=
+=B4=E0=B8=94
+--------------------------------------------------------
+local function safeStartAutoFarm()
+=9task.defer(function()
+=9=9while true do
+=9=9=9if AutoFarmEnabled then
+=9=9=9=9local hrp =3D getHRP()
+=9=9=9=9if hrp then
+=9=9=9=9=9task.spawn(autoFarm)
+=9=9=9=9=9break
+=9=9=9=9end
+=9=9=9end
+=9=9=9task.wait(1)
+=9=9end
+=9end)
+end
+
+player.CharacterAdded:Connect(function(newChar)
+=9task.wait(1)
+=9character =3D newChar
+=9humanoidRootPart =3D newChar:WaitForChild("HumanoidRootPart")
+
+=9if AutoFarmEnabled then
+=9=9task.wait(0.5)
+=9=9safeStartAutoFarm()
+=9end
+end)
+
+--------------------------------------------------------
+-- =F0=9F=8E=9B=EF=B8=8F UI Controls
+--------------------------------------------------------
+DungeontTab:CreateToggle({
+=9Name =3D "Auto Farm",
+=9CurrentValue =3D false,
+=9Flag =3D "AutoFarm",
+=9Callback =3D function(Value)
+=9=9AutoFarmEnabled =3D Value
+=9=9if Value then
+=9=9=9local hrp =3D getHRP()
+=9=9=9if hrp then
+=9=9=9=9local firstEnemy =3D getClosestEnemyPart()
+=9=9=9=9if firstEnemy then
+=9=9=9=9=9-- =E0=B8=A7=E0=B8=B2=E0=B8=A3=E0=B9=8C=E0=B8=9B=E0=B9=84=E0=B8=
+=9B=E0=B8=A8=E0=B8=B1=E0=B8=95=E0=B8=A3=E0=B8=B9=E0=B8=94=E0=B9=89=E0=B8=
+=A7=E0=B8=A2=E0=B8=A3=E0=B8=B0=E0=B8=A2=E0=B8=B0=E0=B8=9B=E0=B8=A5=E0=B8=
+=AD=E0=B8=94=E0=B8=A0=E0=B8=B1=E0=B8=A2 XZ
+=9=9=9=9=9local dir =3D (firstEnemy.Position - hrp.Position).Unit
+=9=9=9=9=9hrp.CFrame =3D CFrame.new(firstEnemy.Position - Vector3.new(dir.=
+X, 0, dir.Z) * teleportDistance)
+=9=9=9=9end
+=9=9=9end
+=9=9=9task.spawn(autoFarm)
+=9=9else
+=9=9=9if currentTween then
+=9=9=9=9currentTween:Cancel()
+=9=9=9=9currentTween =3D nil
+=9=9=9end
+=9=9end
+=9end,
+})
+
+DungeontTab:CreateSlider({
+=9Name =3D "Farm Speed",
+=9Range =3D {1, 10},
+=9Increment =3D 1,
+=9CurrentValue =3D farmSpeed,
+=9Flag =3D "FarmSpeed",
+=9Callback =3D function(Value)
+=9=9farmSpeed =3D Value
+=9end,
+})
+
+DungeontTab:CreateSlider({
+=9Name =3D "Teleport Distance",
+=9Range =3D {5, 20},
+=9Increment =3D 1,
+=9CurrentValue =3D teleportDistance,
+=9Flag =3D "TeleportDistance",
+=9Callback =3D function(Value)
+=9=9teleportDistance =3D Value
+=9end,
+})
+
+-- =F0=9F=8C=B8 Auto Dungeon System (By Maple)
+local ReplicatedStorage =3D game:GetService("ReplicatedStorage")
+local Workspace =3D game:GetService("Workspace")
+local Players =3D game:GetService("Players")
+
+local player =3D Players.LocalPlayer
+local character =3D player.Character or player.CharacterAdded:Wait()
+
+-- =F0=9F=94=B9 =E0=B8=9F=E0=B8=B1=E0=B8=87=E0=B8=81=E0=B9=8C=E0=B8=8A=E0=
+=B8=B1=E0=B8=99=E0=B8=94=E0=B8=B6=E0=B8=87 HumanoidRootPart =E0=B8=9B=E0=
+=B8=A5=E0=B8=AD=E0=B8=94=E0=B8=A0=E0=B8=B1=E0=B8=A2
+local function getHRP()
+=9local char =3D player.Character or player.CharacterAdded:Wait()
+=9return char:FindFirstChild("HumanoidRootPart")
+end
+
+local Remote =3D ReplicatedStorage:WaitForChild("BridgeNet2"):WaitForChild=
+("dataRemoteEvent")
+
+-- =E2=9C=85 =E0=B8=95=E0=B8=B1=E0=B8=A7=E0=B9=81=E0=B8=9B=E0=B8=A3=E0=B8=
+=AB=E0=B8=A5=E0=B8=B1=E0=B8=81
+local AutoJoinEnabled =3D false
+local AutoReplayEnabled =3D false
+local joinRange =3D 25
+local enemiesFolder =3D Workspace:WaitForChild("=5F=5FMain"):WaitForChild(=
+"=5F=5FEnemies"):WaitForChild("Server")
+local CreatingDungeon =3D false -- =E0=B8=9B=E0=B9=89=E0=B8=AD=E0=B8=87=E0=
+=B8=81=E0=B8=B1=E0=B8=99=E0=B8=8B=E0=B9=89=E0=B8=AD=E0=B8=99
+
+-- =F0=9F=8C=B8 =E0=B8=9F=E0=B8=B1=E0=B8=87=E0=B8=81=E0=B9=8C=E0=B8=8A=E0=
+=B8=B1=E0=B8=99=E0=B8=97=E0=B8=B1=E0=B9=88=E0=B8=A7=E0=B9=84=E0=B8=9B
+local function isInDungeon()
+=9for =5F, obj in ipairs(Workspace:GetDescendants()) do
+=9=9if obj:IsA("Part") and obj:FindFirstChild("Type") and obj.Type.Value =
+=3D=3D "Dungeon" then
+=9=9=9return true
+=9=9end
+=9end
+=9return false
+end
+
+local function isNearDungeonDoor()
+=9local door =3D Workspace:FindFirstChild("=5F=5FMain")
+=9if door and door:FindFirstChild("=5F=5FDungeon") then
+=9=9local dungeon =3D door.=5F=5FDungeon:FindFirstChild("Dungeon")
+=9=9local hrp =3D getHRP()
+=9=9if dungeon and hrp then
+=9=9=9local distance =3D (hrp.Position - dungeon.Position).Magnitude
+=9=9=9return distance <=3D joinRange
+=9=9end
+=9end
+=9return false
+end
+
+-- =F0=9F=8C=B8 =E0=B8=9F=E0=B8=B1=E0=B8=87=E0=B8=81=E0=B9=8C=E0=B8=8A=E0=
+=B8=B1=E0=B8=99=E0=B8=AB=E0=B8=A5=E0=B8=B1=E0=B8=81=E0=B8=82=E0=B8=AD=E0=
+=B8=87=E0=B8=A3=E0=B8=B0=E0=B8=9A=E0=B8=9A=E0=B8=94=E0=B8=B1=E0=B8=99=E0=
+=B9=80=E0=B8=88=E0=B8=B5=E0=B9=89=E0=B8=A2=E0=B8=99
+local function buyTicket()
+=9local args =3D {
+=9=9[1] =3D {
+=9=9=9[1] =3D {
+=9=9=9=9["Type"] =3D "Gems",
+=9=9=9=9["Event"] =3D "DungeonAction",
+=9=9=9=9["Action"] =3D "BuyTicket"
+=9=9=9},
+=9=9=9[2] =3D "\4"
+=9=9}
+=9}
+=9Remote:FireServer(unpack(args))
+end
+
+local function createDungeon()
+=9local args =3D {
+=9=9[1] =3D {
+=9=9=9[1] =3D {
+=9=9=9=9["Event"] =3D "DungeonAction",
+=9=9=9=9["Action"] =3D "Create"
+=9=9=9},
+=9=9=9[2] =3D "\4"
+=9=9}
+=9}
+=9Remote:FireServer(unpack(args))
+end
+
+local function startDungeon()
+=9local args =3D {
+=9=9[1] =3D {
+=9=9=9[1] =3D {
+=9=9=9=9["Event"] =3D "DungeonAction",
+=9=9=9=9["Action"] =3D "Start"
+=9=9=9},
+=9=9=9[2] =3D "\4"
+=9=9}
+=9}
+=9Remote:FireServer(unpack(args))
+end
+
+-- =F0=9F=8C=B8 =E0=B8=A3=E0=B8=A7=E0=B8=A1=E0=B8=9F=E0=B8=B1=E0=B8=87=E0=
+=B8=81=E0=B9=8C=E0=B8=8A=E0=B8=B1=E0=B8=99=E0=B8=AA=E0=B8=A3=E0=B9=89=E0=
+=B8=B2=E0=B8=87 + =E0=B9=80=E0=B8=A3=E0=B8=B4=E0=B9=88=E0=B8=A1=E0=B9=83=
+=E0=B8=99=E0=B8=84=E0=B8=A3=E0=B8=B1=E0=B9=89=E0=B8=87=E0=B9=80=E0=B8=94=
+=E0=B8=B5=E0=B8=A2=E0=B8=A7
+local function safeCreateAndStartDungeon()
+=9if CreatingDungeon then return end
+=9CreatingDungeon =3D true
+
+=9buyTicket()
+=9task.wait(1)
+=9createDungeon()
+=9task.wait(2)
+=9startDungeon()
+=9task.wait(5)
+
+=9CreatingDungeon =3D false
+end
+
+-- =F0=9F=8C=B8 =E0=B8=A3=E0=B8=B0=E0=B8=9A=E0=B8=9A Auto Join Dungeon
+DungeontTab:CreateToggle({
+=9Name =3D "Auto Join Dungeon",
+=9CurrentValue =3D false,
+=9Flag =3D "AutoJoinDungeon",
+=9Callback =3D function(Value)
+=9=9AutoJoinEnabled =3D Value
+=9=9if Value then
+=9=9=9task.spawn(function()
+=9=9=9=9while AutoJoinEnabled do
+=9=9=9=9=9if not isInDungeon() and isNearDungeonDoor() then
+=9=9=9=9=9=9safeCreateAndStartDungeon()
+=9=9=9=9=9end
+=9=9=9=9=9task.wait(3)
+=9=9=9=9end
+=9=9=9end)
+=9=9end
+=9end,
+})
+
+-- =F0=9F=8C=B8 =E0=B8=A3=E0=B8=B0=E0=B8=9A=E0=B8=9A Auto Replay (=E0=B9=
+=80=E0=B8=A3=E0=B8=B4=E0=B9=88=E0=B8=A1=E0=B9=83=E0=B8=AB=E0=B8=A1=E0=B9=
+=88=E0=B9=80=E0=B8=A1=E0=B8=B7=E0=B9=88=E0=B8=AD=E0=B8=A1=E0=B8=AD=E0=B8=
+=99=E0=B9=84=E0=B8=A1=E0=B9=88=E0=B9=80=E0=B8=AB=E0=B8=A5=E0=B8=B7=E0=B8=
+=AD)
+local function autoReplay()
+=9while AutoReplayEnabled do
+=9=9local enemiesAlive =3D false
+=9=9for =5F, enemy in ipairs(enemiesFolder:GetChildren()) do
+=9=9=9if enemy:IsA("Model") or enemy:IsA("Part") then
+=9=9=9=9enemiesAlive =3D true
+=9=9=9=9break
+=9=9=9end
+=9=9end
+
+=9=9if not enemiesAlive then
+=9=9=9task.wait(3)
+=9=9=9local stillNoEnemies =3D true
+=9=9=9for =5F, enemy in ipairs(enemiesFolder:GetChildren()) do
+=9=9=9=9if enemy:IsA("Model") or enemy:IsA("Part") then
+=9=9=9=9=9stillNoEnemies =3D false
+=9=9=9=9=9break
+=9=9=9=9end
+=9=9=9end
+
+=9=9=9if stillNoEnemies then
+=9=9=9=9safeCreateAndStartDungeon()
+=9=9=9end
+=9=9end
+
+=9=9task.wait(3)
+=9end
+end
+
+DungeontTab:CreateToggle({
+=9Name =3D "Auto Replay",
+=9CurrentValue =3D false,
+=9Flag =3D "AutoReplay",
+=9Callback =3D function(Value)
+=9=9AutoReplayEnabled =3D Value
+=9=9if Value then
+=9=9=9task.spawn(autoReplay)
+=9=9end
+=9end,
+})
+
+-- =F0=9F=A7=A0 =E0=B9=82=E0=B8=AB=E0=B8=A5=E0=B8=94 config =E0=B8=81=E0=
+=B8=A5=E0=B8=B1=E0=B8=9A=E0=B8=A1=E0=B8=B2
+Rayfield:LoadConfiguration()
