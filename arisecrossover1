@@ -535,6 +535,21 @@ local DungeontSection = DungeontTab:CreateSection("Dungeont Settings")
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 
+local function getDungeonCFrame(dungeon)
+	if dungeon:IsA("Model") then
+		if dungeon.PrimaryPart then
+			return dungeon.PrimaryPart.CFrame
+		else
+			-- ใช้ตำแหน่งกลางของ Model ถ้าไม่มี PrimaryPart
+			local cframe, size = dungeon:GetBoundingBox()
+			return cframe
+		end
+	elseif dungeon:IsA("BasePart") then
+		return dungeon.CFrame
+	end
+	return nil
+end
+
 local function startAutoDungeon()
 	task.spawn(function()
 		local dungeonFolder = workspace:WaitForChild("__Main"):WaitForChild("__Dungeon")
@@ -543,22 +558,23 @@ local function startAutoDungeon()
 			local character = player.Character or player.CharacterAdded:Wait()
 			local hrp = character:WaitForChild("HumanoidRootPart")
 
-			-- ตรวจว่ามี Dungeon อยู่แล้วไหม
-			local dungeonPart = dungeonFolder:FindFirstChild("Dungeon")
-			if dungeonPart then
-				-- วาปไปหาเลย
-				hrp.CFrame = dungeonPart.CFrame * CFrame.new(0, 5, 0)
-				return
+			local dungeon = dungeonFolder:FindFirstChild("Dungeon")
+			if dungeon then
+				local targetCFrame = getDungeonCFrame(dungeon)
+				if targetCFrame then
+					hrp.CFrame = targetCFrame * CFrame.new(0, 5, 0)
+				end
+			else
+				local newDungeon = dungeonFolder.ChildAdded:Wait()
+				if newDungeon.Name == "Dungeon" then
+					local targetCFrame = getDungeonCFrame(newDungeon)
+					if targetCFrame then
+						hrp.CFrame = targetCFrame * CFrame.new(0, 5, 0)
+					end
+				end
 			end
 
-			-- ถ้ายังไม่มี ให้รอจนถูกสร้าง
-			local newPart = dungeonFolder.ChildAdded:Wait()
-			if newPart.Name == "Dungeon" and AutoDungeontToggle.CurrentValue then
-				local character = player.Character or player.CharacterAdded:Wait()
-				local hrp = character:WaitForChild("HumanoidRootPart")
-				hrp.CFrame = newPart.CFrame * CFrame.new(0, 5, 0)
-				return
-			end
+			task.wait(1)
 		end
 	end)
 end
