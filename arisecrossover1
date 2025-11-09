@@ -374,49 +374,23 @@ MainTab:CreateToggle({
 })
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local event = ReplicatedStorage:WaitForChild("BridgeNet2"):WaitForChild("dataRemoteEvent")
-
-local clickDelay = 0.1
-local autoClickEnabled = false
-
-local function autoClick()
-    while autoClickEnabled do
-        local args = {
-            [1] = {
-                [1] = {
-                    ["Event"] = "PunchAttack"
-                },
-                [2] = "\5"
-            }
-        }
-
-        event:FireServer(unpack(args))
-        task.wait(clickDelay)
-    end
-end
-
-MainTab:CreateSlider({
-    Name = "Auto Click Delay",
-    Range = {0, 1},
-    Increment = 0.1,
-    Suffix = " sec",
-    CurrentValue = clickDelay,
-    Callback = function(Value)
-        clickDelay = Value
-    end,
-})
+local WepetEvent = ReplicatedStorage.__Assets.WepetEvent
 
 MainTab:CreateToggle({
-    Name = "Auto Click (PunchAttack)",
+    Name = "Auto Click",
     CurrentValue = false,
+    Flag = "AutoClick",
     Callback = function(Value)
-        autoClickEnabled = Value
+        print("สถานะ:", Value)
         if Value then
-            task.spawn(autoClick)
+            -- เปิด AutoClick
+            WepetEvent:Fire("AutoClick")
+        else
+            -- ปิด AutoClick (ถ้ามีระบบปิดในเกม)
+            WepetEvent:Fire("AutoClick") -- บางเกม toggle เดียวกันกดซ้ำเพื่อปิด
         end
     end,
 })
-
 
 local TeleportTab = Window:CreateTab("Teleport", 4483362458)
 
@@ -968,3 +942,6 @@ DungeontTab:CreateToggle({
 		end
 	end,
 })
+
+-- 🧠 โหลด config กลับมา
+Rayfield:LoadConfiguration()
