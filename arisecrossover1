@@ -265,7 +265,7 @@
 										["Event"] = "SellPet",
 										["Pets"] = { pet.Name }
 									},
-									[2] = "\7"
+									[2] = "\8"
 								}
 							}
 							BridgeEvent:FireServer(unpack(args))
