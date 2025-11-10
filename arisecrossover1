@@ -233,7 +233,7 @@
 	local connection -- ไว้เก็บ event เพื่อหยุดตอนปิดระบบ
 
 	INFOSTab:CreateToggle({
-		Name = "Auto Sell (Rank E-UGM+)",
+		Name = "Auto Sell (Rank E-HUM)",
 		CurrentValue = false,
 		Flag = "AutoSell",
 		Callback = function(Value)
@@ -258,7 +258,7 @@
 					if not AutoSellEnabled then return end
 					if pet and pet:IsA("Folder") then
 						local rankValue = pet:GetAttribute("Rank")
-						if typeof(rankValue) == "number" and rankValue >= 1 and rankValue <= 16 then
+						if typeof(rankValue) == "number" and rankValue >= 1 and rankValue <= 17 then
 							local args = {
 								[1] = {
 									[1] = {
