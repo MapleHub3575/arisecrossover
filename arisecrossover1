@@ -293,6 +293,79 @@
 		end,
 	})
 
+	local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local player = Players.LocalPlayer
+local BridgeEvent = ReplicatedStorage:WaitForChild("BridgeNet2"):WaitForChild("dataRemoteEvent")
+
+local WeaponSection = INFOSTab:CreateSection("Auto Sell Weapon Settings")
+
+local AutoSellEnabled = false
+local connection
+
+INFOSTab:CreateToggle({
+    Name = "Auto Sell Weapons (Level 1-13)",
+    CurrentValue = false,
+    Flag = "AutoSellWeapons",
+    Callback = function(Value)
+        AutoSellEnabled = Value
+        print("AutoSellEnabled =", AutoSellEnabled)
+
+        if AutoSellEnabled then
+            local weaponsFolder = player:WaitForChild("leaderstats"):WaitForChild("Inventory"):WaitForChild("Weapons")
+            print("Weapons folder loaded:", weaponsFolder)
+
+            -- ฟังก์ชันขายอาวุธหลายอันพร้อมกัน
+            local function sellLowLevelWeapons(weapons)
+                if not AutoSellEnabled then return end
+                local weaponsToSell = {}
+
+                for _, weapon in ipairs(weapons) do
+                    if weapon and weapon:IsA("Folder") then
+                        local levelValue = weapon:GetAttribute("Level")
+                        if typeof(levelValue) == "number" and levelValue >= 1 and levelValue <= 13 then
+                            table.insert(weaponsToSell, weapon.Name)
+                        end
+                    end
+                end
+
+                if #weaponsToSell > 0 then
+                    print("Selling weapons:", table.concat(weaponsToSell, ", "))
+                    local args = {
+                        [1] = {
+                            [1] = {
+                                ["Event"] = "WeaponAction",
+                                ["Weapons"] = weaponsToSell,
+                                ["Action"] = "Sell"
+                            },
+                            [2] = "\004"
+                        }
+                    }
+                    BridgeEvent:FireServer(unpack(args))
+                end
+            end
+
+            -- ขายอาวุธที่มีอยู่แล้ว
+            sellLowLevelWeapons(weaponsFolder:GetChildren())
+
+            -- ตรวจจับอาวุธใหม่
+            connection = weaponsFolder.ChildAdded:Connect(function(weapon)
+                task.wait(0.5) -- รอ Attributes โหลดก่อน
+                sellLowLevelWeapons({weapon}) -- ขายอาวุธใหม่ พร้อมกัน
+            end)
+
+        else
+            if connection then
+                connection:Disconnect()
+                connection = nil
+                print("AutoSell Disabled, connection disconnected")
+            end
+        end
+    end,
+})
+
+
+
 	local MainTab = Window:CreateTab("Main", 4483362458) -- ชื่อ tab + ไอคอน
 	local MainSection = MainTab:CreateSection("Farming Settings")
 
