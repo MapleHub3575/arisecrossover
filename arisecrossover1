@@ -1,947 +1,1059 @@
-local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
-local Window = Rayfield:CreateWindow({
-    Name = "Maple Hub",
-    LoadingTitle = "Maple Hub Loading...",
-    LoadingSubtitle = "by Piphoppat",
-    ConfigurationSaving = {
-        Enabled = true,                -- ✅ เปิดระบบเซฟ
-        FolderName = "MapleHub",       -- 📂 ชื่อโฟลเดอร์ย่อย
-        FileName = "MapleConfig"       -- 📄 ชื่อไฟล์ config
-    },
-    Discord = {
-        Enabled = false,
-        Invite = "",
-        RememberJoins = false
-    },
-    KeySystem = false
-})
+	local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+	local Window = Rayfield:CreateWindow({
+		Name = "Maple Hub",
+		LoadingTitle = "Maple Hub Loading...",
+		LoadingSubtitle = "by Piphoppat",
+		ConfigurationSaving = {
+			Enabled = true,                -- ✅ เปิดระบบเซฟ
+			FolderName = "MapleHub",       -- 📂 ชื่อโฟลเดอร์ย่อย
+			FileName = "MapleConfig"       -- 📄 ชื่อไฟล์ config
+		},
+		Discord = {
+			Enabled = false,
+			Invite = "",
+			RememberJoins = false
+		},
+		KeySystem = false
+	})
 
-local INFOSTab = Window:CreateTab("INFOS", 4483362458)
-local INFOSSection = INFOSTab:CreateSection("INFOS Settings")
+	local INFOSTab = Window:CreateTab("INFOS", 4483362458)
+	local INFOSSection = INFOSTab:CreateSection("INFOS Settings")
 
-local SavedPosition -- เก็บตำแหน่งผู้เล่น
+	local SavedPosition -- เก็บตำแหน่งผู้เล่น
 
-INFOSTab:CreateButton({
-Name = "Save Position",
-    Callback = function()
-        local player = game.Players.LocalPlayer
-      local Players = game:GetService("Players")
-local TweenService = game:GetService("TweenService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Workspace = game:GetService("Workspace")
+	INFOSTab:CreateButton({
+	Name = "Save Position",
+		Callback = function()
+			local player = game.Players.LocalPlayer
+		local Players = game:GetService("Players")
+	local TweenService = game:GetService("TweenService")
+	local ReplicatedStorage = game:GetService("ReplicatedStorage")
+	local Workspace = game:GetService("Workspace")
 
-local player = Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+	local player = Players.LocalPlayer
+	local character = player.Character or player.CharacterAdded:Wait()
+	local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 
--- 🔁 โฟลเดอร์ศัตรู
-local enemiesFolder = workspace:WaitForChild("__Main"):WaitForChild("__Enemies"):WaitForChild("Server")
+	-- 🔁 โฟลเดอร์ศัตรู
+	local enemiesFolder = workspace:WaitForChild("__Main"):WaitForChild("__Enemies"):WaitForChild("Server")
 
--- ⚙️ ตัวแปรหลัก
-local AutoFarmEnabled = false
-local farmSpeed = 5
-local currentTween
+	-- ⚙️ ตัวแปรหลัก
+	local AutoFarmEnabled = false
+	local farmSpeed = 5
+	local currentTween
 
---------------------------------------------------------
--- 🧭 ฟังก์ชันช่วยพื้นฐาน
---------------------------------------------------------
+	--------------------------------------------------------
+	-- 🧭 ฟังก์ชันช่วยพื้นฐาน
+	--------------------------------------------------------
 
--- 🔹 ดึง HumanoidRootPart ปลอดภัย (กัน Nil)
-local function getHRP()
-	local char = player.Character or player.CharacterAdded:Wait()
-	return char:FindFirstChild("HumanoidRootPart")
-end
+	-- 🔹 ดึง HumanoidRootPart ปลอดภัย (กัน Nil)
+	local function getHRP()
+		local char = player.Character or player.CharacterAdded:Wait()
+		return char:FindFirstChild("HumanoidRootPart")
+	end
 
--- 🔎 หา Part ศัตรูที่ใกล้ตัวที่สุด (HP > 0)
-local function getClosestEnemyPart()
-	local closestPart
-	local shortestDistance = math.huge
+	-- 🔎 หา Part ศัตรูที่ใกล้ตัวที่สุด (HP > 0)
+	local function getClosestEnemyPart()
+		local closestPart
+		local shortestDistance = math.huge
 
-	for _, part in ipairs(enemiesFolder:GetChildren()) do
-		if part:IsA("Part") and part:IsDescendantOf(workspace) then
-			local hp = part:GetAttribute("HP")
-			if hp and hp > 0 then
-				local hrp = getHRP()
-				if hrp then
-					local distance = (part.Position - hrp.Position).Magnitude
-					if distance < shortestDistance then
-						shortestDistance = distance
-						closestPart = part
+		for _, part in ipairs(enemiesFolder:GetChildren()) do
+			if part:IsA("Part") and part:IsDescendantOf(workspace) then
+				local hp = part:GetAttribute("HP")
+				if hp and hp > 0 then
+					local hrp = getHRP()
+					if hrp then
+						local distance = (part.Position - hrp.Position).Magnitude
+						if distance < shortestDistance then
+							shortestDistance = distance
+							closestPart = part
+						end
 					end
 				end
 			end
 		end
+
+		return closestPart
 	end
 
-	return closestPart
-end
-
--- 🧩 ฟังก์ชันวาร์ปไปศัตรู (มีระบบกันตกโลก)
-local function teleportToEnemyPart(enemyPart, offsetDistance)
-	local hrp = getHRP()
-	if not (enemyPart and hrp and enemyPart:IsDescendantOf(workspace)) then return end
-
-	local direction = (enemyPart.Position - hrp.Position).Unit
-	local distance = (enemyPart.Position - hrp.Position).Magnitude
-	local targetPos = enemyPart.Position - direction * offsetDistance
-
-	-- 💡 ถ้าไกลเกิน 300 stud ให้เทเลพอร์ตทันที
-	if distance > 300 or hrp.Position.Y < -10 then
-		hrp.CFrame = CFrame.new(targetPos + Vector3.new(0, 5, 0))
-		return
-	end
-
-	-- 🌀 Tween ขยับเข้าใกล้
-	if currentTween then currentTween:Cancel() end
-	local tweenTime = math.clamp(distance / (farmSpeed * 100), 0.1, 1)
-	local tweenInfo = TweenInfo.new(tweenTime, Enum.EasingStyle.Linear)
-	currentTween = TweenService:Create(hrp, tweenInfo, {CFrame = CFrame.new(targetPos)})
-	currentTween:Play()
-	task.wait(tweenTime)
-end
-
---------------------------------------------------------
--- ⚔️ ฟังก์ชันหลัก Auto Farm
---------------------------------------------------------
-
-local function autoFarm()
-	while AutoFarmEnabled do
+	-- 🧩 ฟังก์ชันวาร์ปไปศัตรู (มีระบบกันตกโลก)
+	local function teleportToEnemyPart(enemyPart, offsetDistance)
 		local hrp = getHRP()
-		if not hrp then
-			task.wait(1)
-			continue
+		if not (enemyPart and hrp and enemyPart:IsDescendantOf(workspace)) then return end
+
+		local direction = (enemyPart.Position - hrp.Position).Unit
+		local distance = (enemyPart.Position - hrp.Position).Magnitude
+		local targetPos = enemyPart.Position - direction * offsetDistance
+
+		-- 💡 ถ้าไกลเกิน 300 stud ให้เทเลพอร์ตทันที
+		if distance > 300 or hrp.Position.Y < -10 then
+			hrp.CFrame = CFrame.new(targetPos + Vector3.new(0, 5, 0))
+			return
 		end
 
-		local enemyPart = getClosestEnemyPart()
-		if enemyPart then
-			teleportToEnemyPart(enemyPart, 5)
-
-			-- 🔁 ตีจนศัตรูตาย
-			while AutoFarmEnabled do
-				if not (enemyPart and enemyPart.Parent) then break end
-				local hp = enemyPart:GetAttribute("HP")
-				if not hp or hp <= 0 then
-					task.wait(0.2)
-					break
-				end
-				task.wait(0.05)
-			end
-		else
-			task.wait(0.5)
-		end
-		task.wait(0.05)
+		-- 🌀 Tween ขยับเข้าใกล้
+		if currentTween then currentTween:Cancel() end
+		local tweenTime = math.clamp(distance / (farmSpeed * 100), 0.1, 1)
+		local tweenInfo = TweenInfo.new(tweenTime, Enum.EasingStyle.Linear)
+		currentTween = TweenService:Create(hrp, tweenInfo, {CFrame = CFrame.new(targetPos)})
+		currentTween:Play()
+		task.wait(tweenTime)
 	end
-end
 
---------------------------------------------------------
--- ♻️ ฟังก์ชันเริ่มหลังรีเกิด
---------------------------------------------------------
+	--------------------------------------------------------
+	-- ⚔️ ฟังก์ชันหลัก Auto Farm
+	--------------------------------------------------------
 
-local function safeStartAutoFarm()
-	task.defer(function()
-		while true do
-			if AutoFarmEnabled then
-				local hrp = getHRP()
-				if hrp then
-					task.spawn(autoFarm)
-					break
-				end
-			end
-			task.wait(1)
-		end
-	end)
-end
-
-player.CharacterAdded:Connect(function(newChar)
-	task.wait(1)
-	character = newChar
-	humanoidRootPart = newChar:WaitForChild("HumanoidRootPart")
-
-	if AutoFarmEnabled then
-		task.wait(0.5)
-		safeStartAutoFarm()
-	end
-end)
-
---------------------------------------------------------
--- 🎛️ UI Controls
---------------------------------------------------------
-
-DungeontTab:CreateToggle({
-	Name = "Auto Farm",
-	CurrentValue = false,
-	Flag = "AutoFarm",
-	Callback = function(Value)
-		AutoFarmEnabled = Value
-		if Value then
+	local function autoFarm()
+		while AutoFarmEnabled do
 			local hrp = getHRP()
-			if hrp then
-				local firstEnemy = getClosestEnemyPart()
-				if firstEnemy then
-					hrp.CFrame = CFrame.new(firstEnemy.Position + Vector3.new(0, 5, 0))
-				end
-			end
-			task.spawn(autoFarm)
-		else
-			if currentTween then
-				currentTween:Cancel()
-				currentTween = nil
-			end
-		end
-	end,
-})
-
-DungeontTab:CreateSlider({
-	Name = "Farm Speed",
-	Range = {1, 10},
-	Increment = 1,
-	CurrentValue = farmSpeed,
-	Flag = "FarmSpeed",
-	Callback = function(Value)
-		farmSpeed = Value
-	end,
-})  if player and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-            SavedPosition = player.Character.HumanoidRootPart.Position
-            print("Position Saved:", SavedPosition)
-            else
-            print("Cannot save position, character not found")
-        end
-    end,
-})
-
-INFOSTab:CreateButton({
-    Name = "Teleport to Save Position",
-    Callback = function()
-        local player = game.Players.LocalPlayer
-        if SavedPosition and player and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-            player.Character.HumanoidRootPart.CFrame = CFrame.new(SavedPosition)
-            print("Teleported to saved position")
-            else
-            print("No saved position or character not found")
-        end
-    end,
-})
-
-local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local player = Players.LocalPlayer
-local BridgeEvent = ReplicatedStorage:WaitForChild("BridgeNet2"):WaitForChild("dataRemoteEvent")
-
-local SellpetSection = INFOSTab:CreateSection("Auto Sell Settings")
-
-local AutoSellEnabled = false
-local connection -- ไว้เก็บ event เพื่อหยุดตอนปิดระบบ
-
-INFOSTab:CreateToggle({
-    Name = "Auto Sell (Rank E-UGM+)",
-    CurrentValue = false,
-    Flag = "AutoSell",
-    Callback = function(Value)
-        AutoSellEnabled = Value
-
-        if AutoSellEnabled then
-            -- หาโฟลเดอร์ Pets
-            local petsFolder = player:FindFirstChild("leaderstats")
-            if petsFolder then
-                petsFolder = petsFolder:FindFirstChild("Inventory")
-                if petsFolder then
-                    petsFolder = petsFolder:FindFirstChild("Pets")
-                end
-            end
-
-            if not petsFolder then
-                return
-            end
-
-            -- ฟังก์ชันขาย pet ที่ rank 1–10
-            local function sellLowRankPets(pet)
-                if not AutoSellEnabled then return end
-                if pet and pet:IsA("Folder") then
-                    local rankValue = pet:GetAttribute("Rank")
-                    if typeof(rankValue) == "number" and rankValue >= 1 and rankValue <= 16 then
-                        local args = {
-                            [1] = {
-                                [1] = {
-                                    ["Event"] = "SellPet",
-                                    ["Pets"] = { pet.Name }
-                                },
-                                [2] = "\7"
-                            }
-                        }
-                        BridgeEvent:FireServer(unpack(args))
-                    end
-                end
-            end
-
-            -- ขาย pet ที่มีอยู่แล้ว (ถ้ามี)
-            for _, pet in ipairs(petsFolder:GetChildren()) do
-                sellLowRankPets(pet)
-            end
-
-            -- ตรวจทุกครั้งที่มี pet ใหม่เพิ่มเข้ามา
-            connection = petsFolder.ChildAdded:Connect(function(pet)
-                sellLowRankPets(pet)
-            end)
-
-        else
-            -- ปิดระบบ auto sell
-            if connection then
-                connection:Disconnect()
-                connection = nil
-            end
-        end
-    end,
-})
-
-local MainTab = Window:CreateTab("Main", 4483362458) -- ชื่อ tab + ไอคอน
-local MainSection = MainTab:CreateSection("Farming Settings")
-
-MainTab:CreateDropdown({
-    Name = "Select World",
-    Options = {"SoloWorld", "NarutoWorld", "OPWorld", "BleachWorld", "BCWorld", "ChainsawWorld", "JojoWorld", "DBWorld", "OPMWorld", "DanWorld", "Solo2World"},
-    CurrentOption = {"SoloWorld"},
-    Flag = "SelectedIsland",
-    Callback = function(Option)
-        print("Selected: " .. Option[1])
-    end,
-})
-
-MainTab:CreateDropdown({
-    Name = "Select Enemies",
-    Options = {"Enemies 1", "Enemies 2", "Enemies 3"},
-    CurrentOption = {"Enemies 1"},
-    Flag = "SelectedEnemies",
-    Callback = function(Option)
-        print("Selected: " .. Option[1])
-    end,
-})
-
-MainTab:CreateDropdown({
-    Name = "Enemies Type",
-    Options = {"Normal", "Big"},
-    CurrentOption = {"Normal"},
-    Flag = "SelectedType",
-    Callback = function(Option)
-        print("Selected: " .. Option[1])
-    end,
-})
-
-MainTab:CreateDropdown({
-    Name = "Move Mode",
-    Options = {"Slow", "Fast"},
-    CurrentOption = {"Slow"},
-    Flag = "SelectedType",
-    Callback = function(Option)
-        print("Selected: " .. Option[1])
-    end,
-})
-
-MainTab:CreateSlider({
-    Name = "Tween Speed",
-    Range = {100, 1000},
-    Increment = 1,
-    Suffix = "",
-    CurrentValue = 100,
-    Flag = "Tween Speed",
-    Callback = function(Value)
-        print("Speed = " .. Value)
-    end,
-})
-
-MainTab:CreateSlider({
-    Name = "Farm Delay",
-    Range = {0, 5},
-    Increment = 0.1,
-    Suffix = "",
-    CurrentValue = 0.1,
-    Flag = "Farm Delay",
-    Callback = function(Value)
-        print("Speed = " .. Value)
-    end,
-})
-
-MainTab:CreateToggle({
-    Name = "Auto Farm",
-    CurrentValue = false,
-    Flag = "AutoFarm",
-    Callback = function(Value)
-        if Value then
-            print("Auto Farm On")
-        else
-            print("Auto Farm Off")
-        end
-    end,
-})
-
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local WepetEvent = ReplicatedStorage.__Assets.WepetEvent
-
-MainTab:CreateToggle({
-    Name = "Auto Click",
-    CurrentValue = false,
-    Flag = "AutoClick",
-    Callback = function(Value)
-        print("สถานะ:", Value)
-        if Value then
-            -- เปิด AutoClick
-            WepetEvent:Fire("AutoClick")
-        else
-            -- ปิด AutoClick (ถ้ามีระบบปิดในเกม)
-            WepetEvent:Fire("AutoClick") -- บางเกม toggle เดียวกันกดซ้ำเพื่อปิด
-        end
-    end,
-})
-
-local TeleportTab = Window:CreateTab("Teleport", 4483362458)
-
---------------------------------------------------
--- 🌴 EVENT WORLD 1
---------------------------------------------------
-local TeleportSection1 = TeleportTab:CreateSection("TeleportEvent World 1")
-
-local EventWorld1Positions = {
-    {Name = "Jeju Island", Position = Vector3.new(4016.08643, 48.6075211, 3350.37573)},
-    {Name = "Halloween Island", Position = Vector3.new(-295.354584, 20.6939487, -1739.28699)},
-}
-
-for _, world in ipairs(EventWorld1Positions) do
-    TeleportTab:CreateButton({
-        Name = world.Name,
-        Callback = function()
-            local player = game.Players.LocalPlayer
-            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-                player.Character.HumanoidRootPart.CFrame = CFrame.new(world.Position)
-            end
-        end
-    })
-end
-
---------------------------------------------------
--- 🎃 EVENT WORLD 2
---------------------------------------------------
-local TeleportSection2 = TeleportTab:CreateSection("TeleportEvent World 2")
-
-local EventWorld2Positions = {
-    {Name = "Halloween Island", Position = Vector3.new(-367.087646484375, 40.386661529541016, -1956.859619140625)},
-}
-
-for _, world in ipairs(EventWorld2Positions) do
-    TeleportTab:CreateButton({
-        Name = world.Name,
-        Callback = function()
-            local player = game.Players.LocalPlayer
-            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-                player.Character.HumanoidRootPart.CFrame = CFrame.new(world.Position)
-            end
-        end
-    })
-end
-
---------------------------------------------------
--- 🌎 WORLD 1
---------------------------------------------------
-local TeleportSection3 = TeleportTab:CreateSection("World 1")
-
-local World1Positions = {
-    {Name = "SoloWorld", Position = Vector3.new(452.069458, 15.2470932, -22.7720184)},
-    {Name = "Grass Village", Position = Vector3.new(-3372.71191, 30.0344715, 2252.61719)},
-    {Name = "Brum Lsland", Position = Vector3.new(-2844.155517578125, 50.02361297607422, -2016.807373046875)},
-    {Name = "Faceheal Town", Position = Vector3.new(2815.10229, 8.5139246, -2734.53516)},
-    {Name = "Lucky Kingdom", Position = Vector3.new(196.180267, 40.2076797, 4297.66455)},
-    {Name = "Nipon City", Position = Vector3.new(192.605652, 15.2705383, -4293.87109)},
-    {Name = "Mori Town", Position = Vector3.new(4817.64258, 20.8282547, -158.618042)},
-    {Name = "Dragon City", Position = Vector3.new(-2561.15479, 30.2231064, 5871.14941)},
-    {Name = "XZ City", Position = Vector3.new(3321.18042, 20.2300873, 6384.54492)},
-    {Name = "Kindama City", Position = Vector3.new(-3383.6604, 25.4620323, -84.0994873)},
-}
-
-for _, world in ipairs(World1Positions) do
-    TeleportTab:CreateButton({
-        Name = world.Name,
-        Callback = function()
-            local player = game.Players.LocalPlayer
-            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-                player.Character.HumanoidRootPart.CFrame = CFrame.new(world.Position)
-            end
-        end
-    })
-end
-
---------------------------------------------------
--- 🌍 WORLD 2
---------------------------------------------------
-local TeleportSection4 = TeleportTab:CreateSection("World 2")
-
-local World2Positions = {
-    {Name = "Hunters City", Position = Vector3.new(-241.06199645996094, 15.942999839782715, -13.78600025177002)},
-    {Name = "Nen City", Position = Vector3.new(-5225.88671875, 35.88656234741211, -2923.06201171875)},
-    {Name = "Hurricane", Position = Vector3.new(-1289.09521484375, 47.42665481567383, -5173.0888671875)},
-    {Name = "Cursed High", Position = Vector3.new(735.7350463867188, 58.68924331665039, 5018.86083984375)},
-    {Name = "Slayer's Village", Position = Vector3.new(-6852.6513671875, 80.42222595214844, 1596.4384765625)},
-    {Name = "Kaiju City", Position = Vector3.new(5119.162109375, 101.46529388427734, 36.499000549316406)},
-    {Name = "Wall Kingdom", Position = Vector3.new(-9007.994140625, 85.90940856933594, -1793.15625)},
-    {Name = "Shield Kingdom", Position = Vector3.new(-4769.32373046875, 91.6708984375, -8029.35986328125)},
-    {Name = "Ghoul City", Position = Vector3.new(2589.732177734375, 91.97673797607422, -4194.45068359375)},
-    {Name = "Eminance Kingdom", Position = Vector3.new(-4194.46240234375, 120.6724624633789, 4690.453125)},
-    {Name = "Monach City", Position = Vector3.new(3715.7470703125, 128.0664520263672, 3817.377685546875)},
-}
-
-for _, world in ipairs(World2Positions) do
-    TeleportTab:CreateButton({
-        Name = world.Name,
-        Callback = function()
-            local player = game.Players.LocalPlayer
-            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-                player.Character.HumanoidRootPart.CFrame = CFrame.new(world.Position)
-            end
-        end
-    })
-end
-
-
-local DungeontTab = Window:CreateTab("Dungeont", 4483362458)
-local DungeontSection = DungeontTab:CreateSection("Dungeont Settings")
-
-------------------------------------------------------
--- 🌸 Auto Dungeont (Teleport when Dungeon appears)
-------------------------------------------------------
-
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
-
-local function getDungeonCFrame(dungeon)
-	if dungeon:IsA("Model") then
-		if dungeon.PrimaryPart then
-			return dungeon.PrimaryPart.CFrame
-		else
-			-- ใช้ตำแหน่งกลางของ Model ถ้าไม่มี PrimaryPart
-			local cframe, size = dungeon:GetBoundingBox()
-			return cframe
-		end
-	elseif dungeon:IsA("BasePart") then
-		return dungeon.CFrame
-	end
-	return nil
-end
-
-local function startAutoDungeon()
-	task.spawn(function()
-		local dungeonFolder = workspace:WaitForChild("__Main"):WaitForChild("__Dungeon")
-
-		while AutoDungeontToggle.CurrentValue do
-			local character = player.Character or player.CharacterAdded:Wait()
-			local hrp = character:WaitForChild("HumanoidRootPart")
-
-			local dungeon = dungeonFolder:FindFirstChild("Dungeon")
-			if dungeon then
-				local targetCFrame = getDungeonCFrame(dungeon)
-				if targetCFrame then
-					hrp.CFrame = targetCFrame * CFrame.new(0, 5, 0)
-				end
-			else
-				local newDungeon = dungeonFolder.ChildAdded:Wait()
-				if newDungeon.Name == "Dungeon" then
-					local targetCFrame = getDungeonCFrame(newDungeon)
-					if targetCFrame then
-						hrp.CFrame = targetCFrame * CFrame.new(0, 5, 0)
-					end
-				end
-			end
-
-			task.wait(1)
-		end
-	end)
-end
-
-------------------------------------------------------
--- 🌸 Toggle UI
-------------------------------------------------------
-AutoDungeontToggle = DungeontTab:CreateToggle({
-	Name = "Auto Dungeont",
-	CurrentValue = false,
-	Flag = "AutoDungeont",
-	Callback = function(Value)
-		if Value then
-			startAutoDungeon()
-		end
-	end,
-})
-
--- 🌀 AUTO FARM DUNGEON (Full Version by Maple)
-local Players = game:GetService("Players")
-local TweenService = game:GetService("TweenService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Workspace = game:GetService("Workspace")
-
-local player = Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-
--- 🔁 โฟลเดอร์ศัตรู
-local enemiesFolder = workspace:WaitForChild("__Main"):WaitForChild("__Enemies"):WaitForChild("Server")
-
--- ⚙️ ตัวแปรหลัก
-local AutoFarmEnabled = false
-local farmSpeed = 5
-local teleportDistance = 5 -- ระยะห่างจากศัตรู (studs)
-local currentTween
-
---------------------------------------------------------
--- 🧭 ฟังก์ชันช่วยพื้นฐาน
---------------------------------------------------------
-
--- 🔹 ดึง HumanoidRootPart ปลอดภัย
-local function getHRP()
-	local char = player.Character or player.CharacterAdded:Wait()
-	return char:FindFirstChild("HumanoidRootPart")
-end
-
--- 🔎 หา Part ศัตรูที่ใกล้ตัวที่สุด (HP > 0)
-local function getClosestEnemyPart()
-	local closestPart
-	local shortestDistance = math.huge
-
-	for _, part in ipairs(enemiesFolder:GetChildren()) do
-		if part:IsA("Part") and part:IsDescendantOf(workspace) then
-			local hp = part:GetAttribute("HP")
-			if hp and hp > 0 then
-				local hrp = getHRP()
-				if hrp then
-					local distance = (part.Position - hrp.Position).Magnitude
-					if distance < shortestDistance then
-						shortestDistance = distance
-						closestPart = part
-					end
-				end
-			end
-		end
-	end
-
-	return closestPart
-end
-
---------------------------------------------------------
--- 🧩 ฟังก์ชันวาร์ปไปศัตรู (XZ Offset + ป้องกันตกโลก)
--- 🧩 ฟังก์ชันวาร์ปไปศัตรู (XZ Offset + ป้องกันตกโลก + หาพื้น)
-local function teleportToEnemyPart(enemyPart, offsetDistance)
-	local hrp = getHRP()
-	if not (enemyPart and hrp and enemyPart:IsDescendantOf(workspace)) then return false end
-
-	local direction = (enemyPart.Position - hrp.Position).Unit
-	local distance = (enemyPart.Position - hrp.Position).Magnitude
-
-	-- จุดเป้าหมายแนวนอน XZ (ยังไม่ใส่ Y)
-	local targetXZ = enemyPart.Position - Vector3.new(direction.X, 0, direction.Z) * offsetDistance
-
-	-- 🔎 Raycast หาพื้นใต้ตำแหน่งเป้าหมาย
-	local rayOrigin = Vector3.new(targetXZ.X, enemyPart.Position.Y + 10, targetXZ.Z)
-	local rayDirection = Vector3.new(0, -100, 0)
-	local raycastParams = RaycastParams.new()
-	raycastParams.FilterDescendantsInstances = {enemyPart}
-	raycastParams.FilterType = Enum.RaycastFilterType.Exclude
-
-	local result = workspace:Raycast(rayOrigin, rayDirection, raycastParams)
-	local groundY = result and result.Position.Y or enemyPart.Position.Y
-
-	-- เพิ่มความสูงอีกนิดกันจมพื้น
-	local targetPos = Vector3.new(targetXZ.X, groundY + 3, targetXZ.Z)
-
-	-- ถ้าไกลเกินหรือ Y < -10 → วาร์ปทันที
-	if distance > 500 or hrp.Position.Y < -10 then
-		hrp.CFrame = CFrame.new(targetPos)
-		return false
-	end
-
-	-- Tween เคลื่อนที่นุ่มนวล
-	if currentTween then currentTween:Cancel() end
-	local tweenTime = math.clamp(distance / (farmSpeed * 100), 0.1, 1)
-	local tweenInfo = TweenInfo.new(tweenTime, Enum.EasingStyle.Linear)
-	currentTween = TweenService:Create(hrp, tweenInfo, {CFrame = CFrame.new(targetPos)})
-	currentTween:Play()
-	task.wait(tweenTime)
-
-	return true
-end
---------------------------------------------------------
--- ⚔️ ฟังก์ชันหลัก Auto Farm
---------------------------------------------------------
-local function autoFarm()
-	while AutoFarmEnabled do
-		local hrp = getHRP()
-		if not hrp then
-			task.wait(1)
-			continue
-		end
-
-		local enemyPart = getClosestEnemyPart()
-		if enemyPart then
-			local success = teleportToEnemyPart(enemyPart, teleportDistance)
-
-			-- ❌ ถ้าตกโลกหรือวาร์ปกลับ (return false) → ข้าม loop นี้ทันที
-			if not success then
-				task.wait(0.5)
+			if not hrp then
+				task.wait(1)
 				continue
 			end
 
-			-- 🔁 ตีจนศัตรูตาย
-			while AutoFarmEnabled do
-				if not (enemyPart and enemyPart.Parent) then break end
-				local hp = enemyPart:GetAttribute("HP")
-				if not hp or hp <= 0 then
-					task.wait(0.2)
-					break
+			local enemyPart = getClosestEnemyPart()
+			if enemyPart then
+				teleportToEnemyPart(enemyPart, 5)
+
+				-- 🔁 ตีจนศัตรูตาย
+				while AutoFarmEnabled do
+					if not (enemyPart and enemyPart.Parent) then break end
+					local hp = enemyPart:GetAttribute("HP")
+					if not hp or hp <= 0 then
+						task.wait(0.2)
+						break
+					end
+					task.wait(0.05)
 				end
-				task.wait(0.05)
+			else
+				task.wait(0.5)
 			end
-		else
-			task.wait(0.5)
+			task.wait(0.05)
 		end
-		task.wait(0.05)
 	end
-end
---------------------------------------------------------
--- ♻️ ฟังก์ชันเริ่มหลังรีเกิด
---------------------------------------------------------
-local function safeStartAutoFarm()
-	task.defer(function()
-		while true do
-			if AutoFarmEnabled then
-				local hrp = getHRP()
-				if hrp then
-					task.spawn(autoFarm)
-					break
+
+	--------------------------------------------------------
+	-- ♻️ ฟังก์ชันเริ่มหลังรีเกิด
+	--------------------------------------------------------
+
+	local function safeStartAutoFarm()
+		task.defer(function()
+			while true do
+				if AutoFarmEnabled then
+					local hrp = getHRP()
+					if hrp then
+						task.spawn(autoFarm)
+						break
+					end
 				end
+				task.wait(1)
 			end
-			task.wait(1)
+		end)
+	end
+
+	player.CharacterAdded:Connect(function(newChar)
+		task.wait(1)
+		character = newChar
+		humanoidRootPart = newChar:WaitForChild("HumanoidRootPart")
+
+		if AutoFarmEnabled then
+			task.wait(0.5)
+			safeStartAutoFarm()
 		end
 	end)
-end
 
-player.CharacterAdded:Connect(function(newChar)
-	task.wait(1)
-	character = newChar
-	humanoidRootPart = newChar:WaitForChild("HumanoidRootPart")
+	--------------------------------------------------------
+	-- 🎛️ UI Controls
+	--------------------------------------------------------
 
-	if AutoFarmEnabled then
-		task.wait(0.5)
-		safeStartAutoFarm()
-	end
-end)
-
---------------------------------------------------------
--- 🎛️ UI Controls
---------------------------------------------------------
-DungeontTab:CreateToggle({
-	Name = "Auto Farm",
-	CurrentValue = false,
-	Flag = "AutoFarm",
-	Callback = function(Value)
-		AutoFarmEnabled = Value
-		if Value then
-			local hrp = getHRP()
-			if hrp then
-				local firstEnemy = getClosestEnemyPart()
-				if firstEnemy then
-					-- วาร์ปไปศัตรูด้วยระยะปลอดภัย XZ
-					local dir = (firstEnemy.Position - hrp.Position).Unit
-					hrp.CFrame = CFrame.new(firstEnemy.Position - Vector3.new(dir.X, 0, dir.Z) * teleportDistance)
-				end
-			end
-			task.spawn(autoFarm)
-		else
-			if currentTween then
-				currentTween:Cancel()
-				currentTween = nil
-			end
-		end
-	end,
-})
-
-DungeontTab:CreateSlider({
-	Name = "Farm Speed",
-	Range = {1, 10},
-	Increment = 1,
-	CurrentValue = farmSpeed,
-	Flag = "FarmSpeed",
-	Callback = function(Value)
-		farmSpeed = Value
-	end,
-})
-
-DungeontTab:CreateSlider({
-	Name = "Teleport Distance",
-	Range = {5, 20},
-	Increment = 1,
-	CurrentValue = teleportDistance,
-	Flag = "TeleportDistance",
-	Callback = function(Value)
-		teleportDistance = Value
-	end,
-})
-
--- 🌸 Auto Dungeon System (By Maple)
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Workspace = game:GetService("Workspace")
-local Players = game:GetService("Players")
-
-local player = Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-
--- 🔹 ฟังก์ชันดึง HumanoidRootPart ปลอดภัย
-local function getHRP()
-	local char = player.Character or player.CharacterAdded:Wait()
-	return char:FindFirstChild("HumanoidRootPart")
-end
-
-local Remote = ReplicatedStorage:WaitForChild("BridgeNet2"):WaitForChild("dataRemoteEvent")
-
--- ✅ ตัวแปรหลัก
-local AutoJoinEnabled = false
-local AutoReplayEnabled = false
-local joinRange = 25
-local enemiesFolder = Workspace:WaitForChild("__Main"):WaitForChild("__Enemies"):WaitForChild("Server")
-local CreatingDungeon = false -- ป้องกันซ้อน
-
--- 🌸 ฟังก์ชันทั่วไป
-local function isInDungeon()
-	for _, obj in ipairs(Workspace:GetDescendants()) do
-		if obj:IsA("Part") and obj:FindFirstChild("Type") and obj.Type.Value == "Dungeon" then
-			return true
-		end
-	end
-	return false
-end
-
-local function isNearDungeonDoor()
-	local door = Workspace:FindFirstChild("__Main")
-	if door and door:FindFirstChild("__Dungeon") then
-		local dungeon = door.__Dungeon:FindFirstChild("Dungeon")
-		local hrp = getHRP()
-		if dungeon and hrp then
-			local distance = (hrp.Position - dungeon.Position).Magnitude
-			return distance <= joinRange
-		end
-	end
-	return false
-end
-
--- 🌸 ฟังก์ชันหลักของระบบดันเจี้ยน
-local function buyTicket()
-	local args = {
-		[1] = {
-			[1] = {
-				["Type"] = "Gems",
-				["Event"] = "DungeonAction",
-				["Action"] = "BuyTicket"
-			},
-			[2] = "\4"
-		}
-	}
-	Remote:FireServer(unpack(args))
-end
-
-local function createDungeon()
-	local args = {
-		[1] = {
-			[1] = {
-				["Event"] = "DungeonAction",
-				["Action"] = "Create"
-			},
-			[2] = "\4"
-		}
-	}
-	Remote:FireServer(unpack(args))
-end
-
-local function startDungeon()
-	local args = {
-		[1] = {
-			[1] = {
-				["Event"] = "DungeonAction",
-				["Action"] = "Start"
-			},
-			[2] = "\4"
-		}
-	}
-	Remote:FireServer(unpack(args))
-end
-
--- 🌸 รวมฟังก์ชันสร้าง + เริ่มในครั้งเดียว
-local function safeCreateAndStartDungeon()
-	if CreatingDungeon then return end
-	CreatingDungeon = true
-
-	buyTicket()
-	task.wait(1)
-	createDungeon()
-	task.wait(2)
-	startDungeon()
-	task.wait(5)
-
-	CreatingDungeon = false
-end
-
--- 🌸 ระบบ Auto Join Dungeon
-DungeontTab:CreateToggle({
-	Name = "Auto Join Dungeon",
-	CurrentValue = false,
-	Flag = "AutoJoinDungeon",
-	Callback = function(Value)
-		AutoJoinEnabled = Value
-		if Value then
-			task.spawn(function()
-				while AutoJoinEnabled do
-					if not isInDungeon() and isNearDungeonDoor() then
-						safeCreateAndStartDungeon()
+	DungeontTab:CreateToggle({
+		Name = "Auto Farm",
+		CurrentValue = false,
+		Flag = "AutoFarm",
+		Callback = function(Value)
+			AutoFarmEnabled = Value
+			if Value then
+				local hrp = getHRP()
+				if hrp then
+					local firstEnemy = getClosestEnemyPart()
+					if firstEnemy then
+						hrp.CFrame = CFrame.new(firstEnemy.Position + Vector3.new(0, 5, 0))
 					end
-					task.wait(3)
 				end
+				task.spawn(autoFarm)
+			else
+				if currentTween then
+					currentTween:Cancel()
+					currentTween = nil
+				end
+			end
+		end,
+	})
+
+	DungeontTab:CreateSlider({
+		Name = "Farm Speed",
+		Range = {1, 10},
+		Increment = 1,
+		CurrentValue = farmSpeed,
+		Flag = "FarmSpeed",
+		Callback = function(Value)
+			farmSpeed = Value
+		end,
+	})  if player and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+				SavedPosition = player.Character.HumanoidRootPart.Position
+				print("Position Saved:", SavedPosition)
+				else
+				print("Cannot save position, character not found")
+			end
+		end,
+	})
+
+	INFOSTab:CreateButton({
+		Name = "Teleport to Save Position",
+		Callback = function()
+			local player = game.Players.LocalPlayer
+			if SavedPosition and player and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+				player.Character.HumanoidRootPart.CFrame = CFrame.new(SavedPosition)
+				print("Teleported to saved position")
+				else
+				print("No saved position or character not found")
+			end
+		end,
+	})
+
+	local Players = game:GetService("Players")
+	local ReplicatedStorage = game:GetService("ReplicatedStorage")
+	local player = Players.LocalPlayer
+	local BridgeEvent = ReplicatedStorage:WaitForChild("BridgeNet2"):WaitForChild("dataRemoteEvent")
+
+	local SellpetSection = INFOSTab:CreateSection("Auto Sell Settings")
+
+	local AutoSellEnabled = false
+	local connection -- ไว้เก็บ event เพื่อหยุดตอนปิดระบบ
+
+	INFOSTab:CreateToggle({
+		Name = "Auto Sell (Rank E-UGM+)",
+		CurrentValue = false,
+		Flag = "AutoSell",
+		Callback = function(Value)
+			AutoSellEnabled = Value
+
+			if AutoSellEnabled then
+				-- หาโฟลเดอร์ Pets
+				local petsFolder = player:FindFirstChild("leaderstats")
+				if petsFolder then
+					petsFolder = petsFolder:FindFirstChild("Inventory")
+					if petsFolder then
+						petsFolder = petsFolder:FindFirstChild("Pets")
+					end
+				end
+
+				if not petsFolder then
+					return
+				end
+
+				-- ฟังก์ชันขาย pet ที่ rank 1–10
+				local function sellLowRankPets(pet)
+					if not AutoSellEnabled then return end
+					if pet and pet:IsA("Folder") then
+						local rankValue = pet:GetAttribute("Rank")
+						if typeof(rankValue) == "number" and rankValue >= 1 and rankValue <= 16 then
+							local args = {
+								[1] = {
+									[1] = {
+										["Event"] = "SellPet",
+										["Pets"] = { pet.Name }
+									},
+									[2] = "\7"
+								}
+							}
+							BridgeEvent:FireServer(unpack(args))
+						end
+					end
+				end
+
+				-- ขาย pet ที่มีอยู่แล้ว (ถ้ามี)
+				for _, pet in ipairs(petsFolder:GetChildren()) do
+					sellLowRankPets(pet)
+				end
+
+				-- ตรวจทุกครั้งที่มี pet ใหม่เพิ่มเข้ามา
+				connection = petsFolder.ChildAdded:Connect(function(pet)
+					sellLowRankPets(pet)
+				end)
+
+			else
+				-- ปิดระบบ auto sell
+				if connection then
+					connection:Disconnect()
+					connection = nil
+				end
+			end
+		end,
+	})
+
+	local MainTab = Window:CreateTab("Main", 4483362458) -- ชื่อ tab + ไอคอน
+	local MainSection = MainTab:CreateSection("Farming Settings")
+
+	MainTab:CreateDropdown({
+		Name = "Select World",
+		Options = {"SoloWorld", "NarutoWorld", "OPWorld", "BleachWorld", "BCWorld", "ChainsawWorld", "JojoWorld", "DBWorld", "OPMWorld", "DanWorld", "Solo2World"},
+		CurrentOption = {"SoloWorld"},
+		Flag = "SelectedIsland",
+		Callback = function(Option)
+			print("Selected: " .. Option[1])
+		end,
+	})
+
+	MainTab:CreateDropdown({
+		Name = "Select Enemies",
+		Options = {"Enemies 1", "Enemies 2", "Enemies 3"},
+		CurrentOption = {"Enemies 1"},
+		Flag = "SelectedEnemies",
+		Callback = function(Option)
+			print("Selected: " .. Option[1])
+		end,
+	})
+
+	MainTab:CreateDropdown({
+		Name = "Enemies Type",
+		Options = {"Normal", "Big"},
+		CurrentOption = {"Normal"},
+		Flag = "SelectedType",
+		Callback = function(Option)
+			print("Selected: " .. Option[1])
+		end,
+	})
+
+	MainTab:CreateDropdown({
+		Name = "Move Mode",
+		Options = {"Slow", "Fast"},
+		CurrentOption = {"Slow"},
+		Flag = "SelectedType",
+		Callback = function(Option)
+			print("Selected: " .. Option[1])
+		end,
+	})
+
+	MainTab:CreateSlider({
+		Name = "Tween Speed",
+		Range = {100, 1000},
+		Increment = 1,
+		Suffix = "",
+		CurrentValue = 100,
+		Flag = "Tween Speed",
+		Callback = function(Value)
+			print("Speed = " .. Value)
+		end,
+	})
+
+	MainTab:CreateSlider({
+		Name = "Farm Delay",
+		Range = {0, 5},
+		Increment = 0.1,
+		Suffix = "",
+		CurrentValue = 0.1,
+		Flag = "Farm Delay",
+		Callback = function(Value)
+			print("Speed = " .. Value)
+		end,
+	})
+
+	MainTab:CreateToggle({
+		Name = "Auto Farm",
+		CurrentValue = false,
+		Flag = "AutoFarm",
+		Callback = function(Value)
+			if Value then
+				print("Auto Farm On")
+			else
+				print("Auto Farm Off")
+			end
+		end,
+	})
+
+	local ReplicatedStorage = game:GetService("ReplicatedStorage")
+	local WepetEvent = ReplicatedStorage.__Assets.WepetEvent
+
+	MainTab:CreateToggle({
+		Name = "Auto Click",
+		CurrentValue = false,
+		Flag = "AutoClick",
+		Callback = function(Value)
+			print("สถานะ:", Value)
+			if Value then
+				-- เปิด AutoClick
+				WepetEvent:Fire("AutoClick")
+			else
+				-- ปิด AutoClick (ถ้ามีระบบปิดในเกม)
+				WepetEvent:Fire("AutoClick") -- บางเกม toggle เดียวกันกดซ้ำเพื่อปิด
+			end
+		end,
+	})
+
+	local TeleportTab = Window:CreateTab("Teleport", 4483362458)
+
+	--------------------------------------------------
+	-- 🌴 EVENT WORLD 1
+	--------------------------------------------------
+	local TeleportSection1 = TeleportTab:CreateSection("TeleportEvent World 1")
+
+	local EventWorld1Positions = {
+		{Name = "Jeju Island", Position = Vector3.new(4016.08643, 48.6075211, 3350.37573)},
+		{Name = "Halloween Island", Position = Vector3.new(-295.354584, 20.6939487, -1739.28699)},
+	}
+
+	for _, world in ipairs(EventWorld1Positions) do
+		TeleportTab:CreateButton({
+			Name = world.Name,
+			Callback = function()
+				local player = game.Players.LocalPlayer
+				if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+					player.Character.HumanoidRootPart.CFrame = CFrame.new(world.Position)
+				end
+			end
+		})
+	end
+
+	--------------------------------------------------
+	-- 🎃 EVENT WORLD 2
+	--------------------------------------------------
+	local TeleportSection2 = TeleportTab:CreateSection("TeleportEvent World 2")
+
+	local EventWorld2Positions = {
+		{Name = "Halloween Island", Position = Vector3.new(-367.087646484375, 40.386661529541016, -1956.859619140625)},
+	}
+
+	for _, world in ipairs(EventWorld2Positions) do
+		TeleportTab:CreateButton({
+			Name = world.Name,
+			Callback = function()
+				local player = game.Players.LocalPlayer
+				if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+					player.Character.HumanoidRootPart.CFrame = CFrame.new(world.Position)
+				end
+			end
+		})
+	end
+
+	--------------------------------------------------
+	-- 🌎 WORLD 1
+	--------------------------------------------------
+	local TeleportSection3 = TeleportTab:CreateSection("World 1")
+
+	local World1Positions = {
+		{Name = "SoloWorld", Position = Vector3.new(452.069458, 15.2470932, -22.7720184)},
+		{Name = "Grass Village", Position = Vector3.new(-3372.71191, 30.0344715, 2252.61719)},
+		{Name = "Brum Lsland", Position = Vector3.new(-2844.155517578125, 50.02361297607422, -2016.807373046875)},
+		{Name = "Faceheal Town", Position = Vector3.new(2815.10229, 8.5139246, -2734.53516)},
+		{Name = "Lucky Kingdom", Position = Vector3.new(196.180267, 40.2076797, 4297.66455)},
+		{Name = "Nipon City", Position = Vector3.new(192.605652, 15.2705383, -4293.87109)},
+		{Name = "Mori Town", Position = Vector3.new(4817.64258, 20.8282547, -158.618042)},
+		{Name = "Dragon City", Position = Vector3.new(-2561.15479, 30.2231064, 5871.14941)},
+		{Name = "XZ City", Position = Vector3.new(3321.18042, 20.2300873, 6384.54492)},
+		{Name = "Kindama City", Position = Vector3.new(-3383.6604, 25.4620323, -84.0994873)},
+	}
+
+	for _, world in ipairs(World1Positions) do
+		TeleportTab:CreateButton({
+			Name = world.Name,
+			Callback = function()
+				local player = game.Players.LocalPlayer
+				if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+					player.Character.HumanoidRootPart.CFrame = CFrame.new(world.Position)
+				end
+			end
+		})
+	end
+
+	--------------------------------------------------
+	-- 🌍 WORLD 2
+	--------------------------------------------------
+	local TeleportSection4 = TeleportTab:CreateSection("World 2")
+
+	local World2Positions = {
+		{Name = "Hunters City", Position = Vector3.new(-241.06199645996094, 15.942999839782715, -13.78600025177002)},
+		{Name = "Nen City", Position = Vector3.new(-5225.88671875, 35.88656234741211, -2923.06201171875)},
+		{Name = "Hurricane", Position = Vector3.new(-1289.09521484375, 47.42665481567383, -5173.0888671875)},
+		{Name = "Cursed High", Position = Vector3.new(735.7350463867188, 58.68924331665039, 5018.86083984375)},
+		{Name = "Slayer's Village", Position = Vector3.new(-6852.6513671875, 80.42222595214844, 1596.4384765625)},
+		{Name = "Kaiju City", Position = Vector3.new(5119.162109375, 101.46529388427734, 36.499000549316406)},
+		{Name = "Wall Kingdom", Position = Vector3.new(-9007.994140625, 85.90940856933594, -1793.15625)},
+		{Name = "Shield Kingdom", Position = Vector3.new(-4769.32373046875, 91.6708984375, -8029.35986328125)},
+		{Name = "Ghoul City", Position = Vector3.new(2589.732177734375, 91.97673797607422, -4194.45068359375)},
+		{Name = "Eminance Kingdom", Position = Vector3.new(-4194.46240234375, 120.6724624633789, 4690.453125)},
+		{Name = "Monach City", Position = Vector3.new(3715.7470703125, 128.0664520263672, 3817.377685546875)},
+	}
+
+	for _, world in ipairs(World2Positions) do
+		TeleportTab:CreateButton({
+			Name = world.Name,
+			Callback = function()
+				local player = game.Players.LocalPlayer
+				if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+					player.Character.HumanoidRootPart.CFrame = CFrame.new(world.Position)
+				end
+			end
+		})
+	end
+
+	local EvenTab = Window:CreateTab("Even", 4483362458)
+	local EvenSection = EvenTab:CreateSection("Even Settings")
+
+EvenTab:CreateToggle({
+	Name = "Join Halloween / BossRush Auto-Rejoin",
+	CurrentValue = false,
+	Flag = "JoinHalloween",
+	Callback = function(Value)
+		local Players = game:GetService("Players")
+		local ReplicatedStorage = game:GetService("ReplicatedStorage")
+		local TweenService = game:GetService("TweenService")
+		local Workspace = game:GetService("Workspace")
+		local player = Players.LocalPlayer
+		local remote = ReplicatedStorage:WaitForChild("BridgeNet2"):WaitForChild("dataRemoteEvent")
+
+		local trackedMonsters = {}
+		local initialized = false
+		local running = Value -- ใช้ควบคุมลูป
+
+		local function warpToCamPosition()
+			local success, hrp = pcall(function()
+				return (player.Character or player.CharacterAdded:Wait()):WaitForChild("HumanoidRootPart")
 			end)
+			if not success then return end
+
+			local warpFolder = Workspace:FindFirstChild("__Extra") and Workspace.__Extra:FindFirstChild("__Interactions")
+			if not warpFolder then return end
+			local bossRush = warpFolder:FindFirstChild("BossRush")
+			if not bossRush then return end
+			local camPos = bossRush:FindFirstChild("CamPosition")
+			if not camPos then return end
+
+			local tweenInfo = TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+			local tween = TweenService:Create(hrp, tweenInfo, {Position = camPos.Position + Vector3.new(0, 3, 0)})
+			tween:Play()
+			tween.Completed:Wait()
 		end
-	end,
+
+		local function getAliveBossRush()
+			local serverFolder = workspace.__Main:FindFirstChild("__Enemies")
+				and workspace.__Main.__Enemies:FindFirstChild("Server")
+			if not serverFolder then return {} end
+
+			local alive = {}
+			for _, part in ipairs(serverFolder:GetChildren()) do
+				if part:IsA("Part") then
+					local hp = part:GetAttribute("HP")
+					local typeAttr = part:GetAttribute("Type")
+					if hp and hp > 0 and typeAttr == "BossRush" then
+						table.insert(alive, part)
+					end
+				end
+			end
+			return alive
+		end
+
+		local function checkWaveEpoch()
+			local serverFolder = workspace.__Main:FindFirstChild("__Enemies")
+				and workspace.__Main.__Enemies:FindFirstChild("Server")
+			if not serverFolder then return false end
+
+			for _, part in ipairs(serverFolder:GetChildren()) do
+				if part:IsA("Part") then
+					local wave = part:GetAttribute("WaveEpoch")
+					local typeAttr = part:GetAttribute("Type")
+					if wave and typeAttr == "BossRush" and wave >= 51 then
+						return true
+					end
+				end
+			end
+			return false
+		end
+
+		-- อัพเดต running เมื่อ Toggle ปิด/เปิด
+		running = Value
+
+		task.spawn(function()
+			while running do
+				task.wait(1)
+
+				-- ถ้า Toggle ถูกปิด ให้หยุดลูปทันที
+				if not running then
+					break
+				end
+
+				local alive = getAliveBossRush()
+
+				if not initialized then
+					for _, m in ipairs(alive) do
+						trackedMonsters[m] = true
+					end
+					initialized = true
+				else
+					for _, m in ipairs(alive) do
+						if not trackedMonsters[m] then
+							trackedMonsters[m] = true
+						end
+					end
+				end
+
+				if checkWaveEpoch() then
+					trackedMonsters = {}
+					warpToCamPosition()
+					task.wait(0.5)
+					remote:FireServer({ { Event = "BossRushAction", Action = "Create" }, "\4" })
+					task.wait(1)
+					remote:FireServer({ { Event = "BossRushAction", Action = "Start", Diff = "Insane" }, "\4" })
+				end
+			end
+		end)
+	end
 })
 
--- 🌸 ระบบ Auto Replay (เริ่มใหม่เมื่อมอนไม่เหลือ)
-local function autoReplay()
-	while AutoReplayEnabled do
-		local enemiesAlive = false
-		for _, enemy in ipairs(enemiesFolder:GetChildren()) do
-			if enemy:IsA("Model") or enemy:IsA("Part") then
-				enemiesAlive = true
-				break
+	local DungeontTab = Window:CreateTab("Dungeont", 4483362458)
+	local DungeontSection = DungeontTab:CreateSection("Dungeont Settings")
+
+	------------------------------------------------------
+	-- 🌸 Auto Dungeont (Teleport when Dungeon appears)
+	------------------------------------------------------
+
+	local Players = game:GetService("Players")
+	local player = Players.LocalPlayer
+
+	local function getDungeonCFrame(dungeon)
+		if dungeon:IsA("Model") then
+			if dungeon.PrimaryPart then
+				return dungeon.PrimaryPart.CFrame
+			else
+				-- ใช้ตำแหน่งกลางของ Model ถ้าไม่มี PrimaryPart
+				local cframe, size = dungeon:GetBoundingBox()
+				return cframe
+			end
+		elseif dungeon:IsA("BasePart") then
+			return dungeon.CFrame
+		end
+		return nil
+	end
+
+	local function startAutoDungeon()
+		task.spawn(function()
+			local dungeonFolder = workspace:WaitForChild("__Main"):WaitForChild("__Dungeon")
+
+			while AutoDungeontToggle.CurrentValue do
+				local character = player.Character or player.CharacterAdded:Wait()
+				local hrp = character:WaitForChild("HumanoidRootPart")
+
+				local dungeon = dungeonFolder:FindFirstChild("Dungeon")
+				if dungeon then
+					local targetCFrame = getDungeonCFrame(dungeon)
+					if targetCFrame then
+						hrp.CFrame = targetCFrame * CFrame.new(0, 5, 0)
+					end
+				else
+					local newDungeon = dungeonFolder.ChildAdded:Wait()
+					if newDungeon.Name == "Dungeon" then
+						local targetCFrame = getDungeonCFrame(newDungeon)
+						if targetCFrame then
+							hrp.CFrame = targetCFrame * CFrame.new(0, 5, 0)
+						end
+					end
+				end
+
+				task.wait(1)
+			end
+		end)
+	end
+
+	------------------------------------------------------
+	-- 🌸 Toggle UI
+	------------------------------------------------------
+	AutoDungeontToggle = DungeontTab:CreateToggle({
+		Name = "Auto Dungeont",
+		CurrentValue = false,
+		Flag = "AutoDungeont",
+		Callback = function(Value)
+			if Value then
+				startAutoDungeon()
+			end
+		end,
+	})
+
+	-- 🌀 AUTO FARM DUNGEON (Full Version by Maple)
+	local Players = game:GetService("Players")
+	local TweenService = game:GetService("TweenService")
+	local ReplicatedStorage = game:GetService("ReplicatedStorage")
+	local Workspace = game:GetService("Workspace")
+
+	local player = Players.LocalPlayer
+	local character = player.Character or player.CharacterAdded:Wait()
+	local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+	-- 🔁 โฟลเดอร์ศัตรู
+	local enemiesFolder = workspace:WaitForChild("__Main"):WaitForChild("__Enemies"):WaitForChild("Server")
+
+	-- ⚙️ ตัวแปรหลัก
+	local AutoFarmEnabled = false
+	local farmSpeed = 5
+	local teleportDistance = 5 -- ระยะห่างจากศัตรู (studs)
+	local currentTween
+
+	--------------------------------------------------------
+	-- 🧭 ฟังก์ชันช่วยพื้นฐาน
+	--------------------------------------------------------
+
+	-- 🔹 ดึง HumanoidRootPart ปลอดภัย
+	local function getHRP()
+		local char = player.Character or player.CharacterAdded:Wait()
+		return char:FindFirstChild("HumanoidRootPart")
+	end
+
+	-- 🔎 หา Part ศัตรูที่ใกล้ตัวที่สุด (HP > 0)
+	local function getClosestEnemyPart()
+		local closestPart
+		local shortestDistance = math.huge
+
+		for _, part in ipairs(enemiesFolder:GetChildren()) do
+			if part:IsA("Part") and part:IsDescendantOf(workspace) then
+				local hp = part:GetAttribute("HP")
+				if hp and hp > 0 then
+					local hrp = getHRP()
+					if hrp then
+						local distance = (part.Position - hrp.Position).Magnitude
+						if distance < shortestDistance then
+							shortestDistance = distance
+							closestPart = part
+						end
+					end
+				end
 			end
 		end
 
-		if not enemiesAlive then
-			task.wait(3)
-			local stillNoEnemies = true
+		return closestPart
+	end
+
+	--------------------------------------------------------
+	-- 🧩 ฟังก์ชันวาร์ปไปศัตรู (XZ Offset + ป้องกันตกโลก)
+	-- 🧩 ฟังก์ชันวาร์ปไปศัตรู (XZ Offset + ป้องกันตกโลก + หาพื้น)
+	local function teleportToEnemyPart(enemyPart, offsetDistance)
+		local hrp = getHRP()
+		if not (enemyPart and hrp and enemyPart:IsDescendantOf(workspace)) then return false end
+
+		local direction = (enemyPart.Position - hrp.Position).Unit
+		local distance = (enemyPart.Position - hrp.Position).Magnitude
+
+		-- จุดเป้าหมายแนวนอน XZ (ยังไม่ใส่ Y)
+		local targetXZ = enemyPart.Position - Vector3.new(direction.X, 0, direction.Z) * offsetDistance
+
+		-- 🔎 Raycast หาพื้นใต้ตำแหน่งเป้าหมาย
+		local rayOrigin = Vector3.new(targetXZ.X, enemyPart.Position.Y + 10, targetXZ.Z)
+		local rayDirection = Vector3.new(0, -100, 0)
+		local raycastParams = RaycastParams.new()
+		raycastParams.FilterDescendantsInstances = {enemyPart}
+		raycastParams.FilterType = Enum.RaycastFilterType.Exclude
+
+		local result = workspace:Raycast(rayOrigin, rayDirection, raycastParams)
+		local groundY = result and result.Position.Y or enemyPart.Position.Y
+
+		-- เพิ่มความสูงอีกนิดกันจมพื้น
+		local targetPos = Vector3.new(targetXZ.X, groundY + 3, targetXZ.Z)
+
+		-- ถ้าไกลเกินหรือ Y < -10 → วาร์ปทันที
+		if distance > 500 or hrp.Position.Y < -10 then
+			hrp.CFrame = CFrame.new(targetPos)
+			return false
+		end
+
+		-- Tween เคลื่อนที่นุ่มนวล
+		if currentTween then currentTween:Cancel() end
+		local tweenTime = math.clamp(distance / (farmSpeed * 100), 0.1, 1)
+		local tweenInfo = TweenInfo.new(tweenTime, Enum.EasingStyle.Linear)
+		currentTween = TweenService:Create(hrp, tweenInfo, {CFrame = CFrame.new(targetPos)})
+		currentTween:Play()
+		task.wait(tweenTime)
+
+		return true
+	end
+	--------------------------------------------------------
+	-- ⚔️ ฟังก์ชันหลัก Auto Farm
+	--------------------------------------------------------
+	local function autoFarm()
+		while AutoFarmEnabled do
+			local hrp = getHRP()
+			if not hrp then
+				task.wait(1)
+				continue
+			end
+
+			local enemyPart = getClosestEnemyPart()
+			if enemyPart then
+				local success = teleportToEnemyPart(enemyPart, teleportDistance)
+
+				-- ❌ ถ้าตกโลกหรือวาร์ปกลับ (return false) → ข้าม loop นี้ทันที
+				if not success then
+					task.wait(0.5)
+					continue
+				end
+
+				-- 🔁 ตีจนศัตรูตาย
+				while AutoFarmEnabled do
+					if not (enemyPart and enemyPart.Parent) then break end
+					local hp = enemyPart:GetAttribute("HP")
+					if not hp or hp <= 0 then
+						task.wait(0.2)
+						break
+					end
+					task.wait(0.05)
+				end
+			else
+				task.wait(0.5)
+			end
+			task.wait(0.05)
+		end
+	end
+	--------------------------------------------------------
+	-- ♻️ ฟังก์ชันเริ่มหลังรีเกิด
+	--------------------------------------------------------
+	local function safeStartAutoFarm()
+		task.defer(function()
+			while true do
+				if AutoFarmEnabled then
+					local hrp = getHRP()
+					if hrp then
+						task.spawn(autoFarm)
+						break
+					end
+				end
+				task.wait(1)
+			end
+		end)
+	end
+
+	player.CharacterAdded:Connect(function(newChar)
+		task.wait(1)
+		character = newChar
+		humanoidRootPart = newChar:WaitForChild("HumanoidRootPart")
+
+		if AutoFarmEnabled then
+			task.wait(0.5)
+			safeStartAutoFarm()
+		end
+	end)
+
+	--------------------------------------------------------
+	-- 🎛️ UI Controls
+	--------------------------------------------------------
+	DungeontTab:CreateToggle({
+		Name = "Auto Farm",
+		CurrentValue = false,
+		Flag = "AutoFarm",
+		Callback = function(Value)
+			AutoFarmEnabled = Value
+			if Value then
+				local hrp = getHRP()
+				if hrp then
+					local firstEnemy = getClosestEnemyPart()
+					if firstEnemy then
+						-- วาร์ปไปศัตรูด้วยระยะปลอดภัย XZ
+						local dir = (firstEnemy.Position - hrp.Position).Unit
+						hrp.CFrame = CFrame.new(firstEnemy.Position - Vector3.new(dir.X, 0, dir.Z) * teleportDistance)
+					end
+				end
+				task.spawn(autoFarm)
+			else
+				if currentTween then
+					currentTween:Cancel()
+					currentTween = nil
+				end
+			end
+		end,
+	})
+
+	DungeontTab:CreateSlider({
+		Name = "Farm Speed",
+		Range = {1, 10},
+		Increment = 1,
+		CurrentValue = farmSpeed,
+		Flag = "FarmSpeed",
+		Callback = function(Value)
+			farmSpeed = Value
+		end,
+	})
+
+	DungeontTab:CreateSlider({
+		Name = "Teleport Distance",
+		Range = {5, 20},
+		Increment = 1,
+		CurrentValue = teleportDistance,
+		Flag = "TeleportDistance",
+		Callback = function(Value)
+			teleportDistance = Value
+		end,
+	})
+
+	-- 🌸 Auto Dungeon System (By Maple)
+	local ReplicatedStorage = game:GetService("ReplicatedStorage")
+	local Workspace = game:GetService("Workspace")
+	local Players = game:GetService("Players")
+
+	local player = Players.LocalPlayer
+	local character = player.Character or player.CharacterAdded:Wait()
+
+	-- 🔹 ฟังก์ชันดึง HumanoidRootPart ปลอดภัย
+	local function getHRP()
+		local char = player.Character or player.CharacterAdded:Wait()
+		return char:FindFirstChild("HumanoidRootPart")
+	end
+
+	local Remote = ReplicatedStorage:WaitForChild("BridgeNet2"):WaitForChild("dataRemoteEvent")
+
+	-- ✅ ตัวแปรหลัก
+	local AutoJoinEnabled = false
+	local AutoReplayEnabled = false
+	local joinRange = 25
+	local enemiesFolder = Workspace:WaitForChild("__Main"):WaitForChild("__Enemies"):WaitForChild("Server")
+	local CreatingDungeon = false -- ป้องกันซ้อน
+
+	-- 🌸 ฟังก์ชันทั่วไป
+	local function isInDungeon()
+		for _, obj in ipairs(Workspace:GetDescendants()) do
+			if obj:IsA("Part") and obj:FindFirstChild("Type") and obj.Type.Value == "Dungeon" then
+				return true
+			end
+		end
+		return false
+	end
+
+	local function isNearDungeonDoor()
+		local door = Workspace:FindFirstChild("__Main")
+		if door and door:FindFirstChild("__Dungeon") then
+			local dungeon = door.__Dungeon:FindFirstChild("Dungeon")
+			local hrp = getHRP()
+			if dungeon and hrp then
+				local distance = (hrp.Position - dungeon.Position).Magnitude
+				return distance <= joinRange
+			end
+		end
+		return false
+	end
+
+	-- 🌸 ฟังก์ชันหลักของระบบดันเจี้ยน
+	local function buyTicket()
+		local args = {
+			[1] = {
+				[1] = {
+					["Type"] = "Gems",
+					["Event"] = "DungeonAction",
+					["Action"] = "BuyTicket"
+				},
+				[2] = "\4"
+			}
+		}
+		Remote:FireServer(unpack(args))
+	end
+
+	local function createDungeon()
+		local args = {
+			[1] = {
+				[1] = {
+					["Event"] = "DungeonAction",
+					["Action"] = "Create"
+				},
+				[2] = "\4"
+			}
+		}
+		Remote:FireServer(unpack(args))
+	end
+
+	local function startDungeon()
+		local args = {
+			[1] = {
+				[1] = {
+					["Event"] = "DungeonAction",
+					["Action"] = "Start"
+				},
+				[2] = "\4"
+			}
+		}
+		Remote:FireServer(unpack(args))
+	end
+
+	-- 🌸 รวมฟังก์ชันสร้าง + เริ่มในครั้งเดียว
+	local function safeCreateAndStartDungeon()
+		if CreatingDungeon then return end
+		CreatingDungeon = true
+
+		buyTicket()
+		task.wait(1)
+		createDungeon()
+		task.wait(2)
+		startDungeon()
+		task.wait(5)
+
+		CreatingDungeon = false
+	end
+
+	-- 🌸 ระบบ Auto Join Dungeon
+	DungeontTab:CreateToggle({
+		Name = "Auto Join Dungeon",
+		CurrentValue = false,
+		Flag = "AutoJoinDungeon",
+		Callback = function(Value)
+			AutoJoinEnabled = Value
+			if Value then
+				task.spawn(function()
+					while AutoJoinEnabled do
+						if not isInDungeon() and isNearDungeonDoor() then
+							safeCreateAndStartDungeon()
+						end
+						task.wait(3)
+					end
+				end)
+			end
+		end,
+	})
+
+	-- 🌸 ระบบ Auto Replay (เริ่มใหม่เมื่อมอนไม่เหลือ)
+	local function autoReplay()
+		while AutoReplayEnabled do
+			local enemiesAlive = false
 			for _, enemy in ipairs(enemiesFolder:GetChildren()) do
 				if enemy:IsA("Model") or enemy:IsA("Part") then
-					stillNoEnemies = false
+					enemiesAlive = true
 					break
 				end
 			end
 
-			if stillNoEnemies then
-				safeCreateAndStartDungeon()
+			if not enemiesAlive then
+				task.wait(3)
+				local stillNoEnemies = true
+				for _, enemy in ipairs(enemiesFolder:GetChildren()) do
+					if enemy:IsA("Model") or enemy:IsA("Part") then
+						stillNoEnemies = false
+						break
+					end
+				end
+
+				if stillNoEnemies then
+					safeCreateAndStartDungeon()
+				end
 			end
-		end
 
-		task.wait(3)
+			task.wait(3)
+		end
 	end
-end
 
-DungeontTab:CreateToggle({
-	Name = "Auto Replay",
-	CurrentValue = false,
-	Flag = "AutoReplay",
-	Callback = function(Value)
-		AutoReplayEnabled = Value
-		if Value then
-			task.spawn(autoReplay)
-		end
-	end,
-})
+	DungeontTab:CreateToggle({
+		Name = "Auto Replay",
+		CurrentValue = false,
+		Flag = "AutoReplay",
+		Callback = function(Value)
+			AutoReplayEnabled = Value
+			if Value then
+				task.spawn(autoReplay)
+			end
+		end,
+	})
 
--- 🧠 โหลด config กลับมา
-Rayfield:LoadConfiguration()
+	-- 🧠 โหลด config กลับมา
+	Rayfield:LoadConfiguration()
