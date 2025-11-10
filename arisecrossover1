@@ -695,7 +695,6 @@ EvenTab:CreateToggle({
 			if dungeon.PrimaryPart then
 				return dungeon.PrimaryPart.CFrame
 			else
-				-- ใช้ตำแหน่งกลางของ Model ถ้าไม่มี PrimaryPart
 				local cframe, size = dungeon:GetBoundingBox()
 				return cframe
 			end
@@ -705,45 +704,43 @@ EvenTab:CreateToggle({
 		return nil
 	end
 
+	local function teleportToDungeon(dungeon)
+		if dungeon then
+			local character = player.Character or player.CharacterAdded:Wait()
+			local hrp = character:WaitForChild("HumanoidRootPart")
+			local targetCFrame = getDungeonCFrame(dungeon)
+			if targetCFrame then
+				pcall(function()
+					hrp.CFrame = targetCFrame * CFrame.new(0, 5, 0)
+				end)
+			end
+		end
+	end
+
 	local function startAutoDungeon()
-		task.spawn(function()
-			local dungeonFolder = workspace:WaitForChild("__Main"):WaitForChild("__Dungeon")
+		local dungeonFolder = workspace:WaitForChild("__Main"):WaitForChild("__Dungeon")
 
-			while AutoDungeontToggle.CurrentValue do
-				local character = player.Character or player.CharacterAdded:Wait()
-				local hrp = character:WaitForChild("HumanoidRootPart")
+		-- teleport dungeon ที่มีอยู่ตอนนี้ทีเดียว
+		for _, dungeon in ipairs(dungeonFolder:GetChildren()) do
+			teleportToDungeon(dungeon)
+		end
 
-				local dungeon = dungeonFolder:FindFirstChild("Dungeon")
-				if dungeon then
-					local targetCFrame = getDungeonCFrame(dungeon)
-					if targetCFrame then
-						hrp.CFrame = targetCFrame * CFrame.new(0, 5, 0)
-					end
-				else
-					local newDungeon = dungeonFolder.ChildAdded:Wait()
-					if newDungeon.Name == "Dungeon" then
-						local targetCFrame = getDungeonCFrame(newDungeon)
-						if targetCFrame then
-							hrp.CFrame = targetCFrame * CFrame.new(0, 5, 0)
-						end
-					end
-				end
-
-				task.wait(1)
+		-- ฟัง event ดันใหม่เกิด
+		dungeonFolder.ChildAdded:Connect(function(newDungeon)
+			if AutoDungeontToggle.CurrentValue then
+				teleportToDungeon(newDungeon)
 			end
 		end)
 	end
 
-	------------------------------------------------------
-	-- 🌸 Toggle UI
-	------------------------------------------------------
+	-- Toggle UI
 	AutoDungeontToggle = DungeontTab:CreateToggle({
-		Name = "Auto Dungeont",
+		Name = "Auto Dungeon",
 		CurrentValue = false,
 		Flag = "AutoDungeont",
 		Callback = function(Value)
 			if Value then
-				startAutoDungeon()
+				startAutoDungeon() -- เริ่มระบบ teleport อัตโนมัติ
 			end
 		end,
 	})
