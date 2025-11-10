@@ -598,115 +598,185 @@
 	local EvenTab = Window:CreateTab("Even", 4483362458)
 	local EvenSection = EvenTab:CreateSection("Even Settings")
 
-EvenTab:CreateToggle({
-	Name = "Join Halloween / BossRush Auto-Rejoin",
-	CurrentValue = false,
-	Flag = "JoinHalloween",
-	Callback = function(Value)
-		local Players = game:GetService("Players")
-		local ReplicatedStorage = game:GetService("ReplicatedStorage")
-		local TweenService = game:GetService("TweenService")
-		local Workspace = game:GetService("Workspace")
-		local player = Players.LocalPlayer
-		local remote = ReplicatedStorage:WaitForChild("BridgeNet2"):WaitForChild("dataRemoteEvent")
+	-- ตัวแปรเก็บสถานะ toggle และ connection
+	local teleportEnabled = false
+	local characterAddedConn
 
-		local trackedMonsters = {}
-		local initialized = false
-		local running = Value -- ใช้ควบคุมลูป
+	EvenTab:CreateToggle({
+		Name = "Teleport To Boss",
+		CurrentValue = false,
+		Flag = "TeleportBoss",
+		Callback = function(Value)
+			local Players = game:GetService("Players")
+			local player = Players.LocalPlayer
+			local workspace = game:GetService("Workspace")
+			local TELEPORT_INTERVAL = 2 -- วาปทุก 2 วินาที
 
-		local function warpToCamPosition()
-			local success, hrp = pcall(function()
-				return (player.Character or player.CharacterAdded:Wait()):WaitForChild("HumanoidRootPart")
-			end)
-			if not success then return end
+			teleportEnabled = Value -- อัพเดตสถานะ toggle
 
-			local warpFolder = Workspace:FindFirstChild("__Extra") and Workspace.__Extra:FindFirstChild("__Interactions")
-			if not warpFolder then return end
-			local bossRush = warpFolder:FindFirstChild("BossRush")
-			if not bossRush then return end
-			local camPos = bossRush:FindFirstChild("CamPosition")
-			if not camPos then return end
+			local function teleport()
+				if not teleportEnabled then return end -- ถ้า toggle ปิด ไม่วาป
+				local char = player.Character
+				if not char then return end
 
-			local tweenInfo = TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-			local tween = TweenService:Create(hrp, tweenInfo, {Position = camPos.Position + Vector3.new(0, 3, 0)})
-			tween:Play()
-			tween.Completed:Wait()
-		end
+				local hrp = char:FindFirstChild("HumanoidRootPart") or char:WaitForChild("HumanoidRootPart", 5)
+				if not hrp then return end
 
-		local function getAliveBossRush()
-			local serverFolder = workspace.__Main:FindFirstChild("__Enemies")
-				and workspace.__Main.__Enemies:FindFirstChild("Server")
-			if not serverFolder then return {} end
+				local bossModel = workspace:FindFirstChild("__Extra")
+					and workspace.__Extra:FindFirstChild("__Interactions")
+					and workspace.__Extra.__Interactions:FindFirstChild("Others")
+					and workspace.__Extra.__Interactions.Others:FindFirstChild("BossRush")
 
-			local alive = {}
-			for _, part in ipairs(serverFolder:GetChildren()) do
-				if part:IsA("Part") then
-					local hp = part:GetAttribute("HP")
-					local typeAttr = part:GetAttribute("Type")
-					if hp and hp > 0 and typeAttr == "BossRush" then
-						table.insert(alive, part)
-					end
+				if bossModel and bossModel:FindFirstChild("CamPosition") then
+					hrp.CFrame = bossModel.CamPosition.CFrame
+					print("วาปไป BossRush")
 				end
 			end
-			return alive
-		end
 
-		local function checkWaveEpoch()
-			local serverFolder = workspace.__Main:FindFirstChild("__Enemies")
-				and workspace.__Main.__Enemies:FindFirstChild("Server")
-			if not serverFolder then return false end
+			if teleportEnabled then
+				-- วาปทันที
+				teleport()
 
-			for _, part in ipairs(serverFolder:GetChildren()) do
-				if part:IsA("Part") then
-					local wave = part:GetAttribute("WaveEpoch")
-					local typeAttr = part:GetAttribute("Type")
-					if wave and typeAttr == "BossRush" and wave >= 51 then
-						return true
+				-- loop วาปทุก 2 วินาที
+				spawn(function()
+					while teleportEnabled do
+						wait(TELEPORT_INTERVAL)
+						teleport()
 					end
+				end)
+
+				-- ฟัง respawn และเก็บ reference
+				characterAddedConn = player.CharacterAdded:Connect(function(char)
+					wait(0.5)
+					teleport()
+				end)
+
+			else
+				-- toggle ปิด → หยุดวาปและ disconnect event
+				if characterAddedConn then
+					characterAddedConn:Disconnect()
+					characterAddedConn = nil
 				end
 			end
-			return false
-		end
+		end,
+	})
 
-		-- อัพเดต running เมื่อ Toggle ปิด/เปิด
-		running = Value
+	local Players = game:GetService("Players")
+	local ReplicatedStorage = game:GetService("ReplicatedStorage")
+	local Workspace = game:GetService("Workspace")
+	local player = Players.LocalPlayer
 
-		task.spawn(function()
-			while running do
-				task.wait(1)
+	local AutoJoin = false
+	local AutoReJoin = false
 
-				-- ถ้า Toggle ถูกปิด ให้หยุดลูปทันที
-				if not running then
-					break
-				end
-
-				local alive = getAliveBossRush()
-
-				if not initialized then
-					for _, m in ipairs(alive) do
-						trackedMonsters[m] = true
-					end
-					initialized = true
-				else
-					for _, m in ipairs(alive) do
-						if not trackedMonsters[m] then
-							trackedMonsters[m] = true
+	-- ฟังก์ชันเช็คว่าผู้เล่นอยู่ใน BossRush Dungeon หรือไม่
+	local function isInBossRushDungeon()
+		local serverFolder = Workspace:FindFirstChild("__Main")
+		if serverFolder then
+			serverFolder = serverFolder:FindFirstChild("__Enemies")
+			if serverFolder then
+				serverFolder = serverFolder:FindFirstChild("Server")
+				if serverFolder then
+					for _, part in ipairs(serverFolder:GetChildren()) do
+						if part:GetAttribute("Type") == "BossRush" then
+							return true
 						end
 					end
 				end
+			end
+		end
+		return false
+	end
 
-				if checkWaveEpoch() then
-					trackedMonsters = {}
-					warpToCamPosition()
-					task.wait(0.5)
-					remote:FireServer({ { Event = "BossRushAction", Action = "Create" }, "\4" })
-					task.wait(1)
-					remote:FireServer({ { Event = "BossRushAction", Action = "Start", Diff = "Insane" }, "\4" })
+	-- ฟังก์ชันเช็ค WaveEpoch
+	local function getWaveEpoch()
+		local serverFolder = Workspace:FindFirstChild("__Main")
+		if serverFolder then
+			serverFolder = serverFolder:FindFirstChild("__Enemies")
+			if serverFolder then
+				serverFolder = serverFolder:FindFirstChild("Server")
+				if serverFolder then
+					for _, part in ipairs(serverFolder:GetChildren()) do
+						if part:GetAttribute("Type") == "BossRush" then
+							return part:GetAttribute("WaveEpoch") or 0
+						end
+					end
 				end
 			end
-		end)
+		end
+		return 0
 	end
-})
+
+	-- Toggle สำหรับ Join BossRush (ตรวจครั้งเดียวตอนเปิด)
+	EvenTab:CreateToggle({
+		Name = "Join BossRush",
+		CurrentValue = false,
+		Flag = "JoinBossOnce",
+		Callback = function(Value)
+			if Value then
+				if not isInBossRushDungeon() then
+					-- สร้าง Dungeon
+					local argsCreate = {
+						[1] = {
+							[1] = {
+								["Event"] = "BossRushAction",
+								["Action"] = "Create"
+							},
+							[2] = "\4"
+						}
+					}
+					ReplicatedStorage:WaitForChild("BridgeNet2"):WaitForChild("dataRemoteEvent"):FireServer(unpack(argsCreate))
+					
+					wait(1) -- รอเซิร์ฟเวอร์ประมวลผล
+					
+					-- เริ่ม Dungeon
+					local argsStart = {
+						[1] = {
+							[1] = {
+								["Action"] = "Start",
+								["Diff"] = "Insane",
+								["Event"] = "BossRushAction"
+							},
+							[2] = "\4"
+						}
+					}
+					ReplicatedStorage:WaitForChild("BridgeNet2"):WaitForChild("dataRemoteEvent"):FireServer(unpack(argsStart))
+				end
+			end
+		end,
+	})
+
+	-- Toggle สำหรับ Auto ReJoin (WaveEpoch = 51) – ออกเฉย ๆ
+	EvenTab:CreateToggle({
+		Name = "Auto ReJoin",
+		CurrentValue = false,
+		Flag = "AutoReJoinBoss",
+		Callback = function(Value)
+			AutoReJoin = Value
+			if AutoReJoin then
+				spawn(function()
+					while AutoReJoin do
+						local wave = getWaveEpoch()
+						if wave >= 51 then
+							-- Leave Dungeon
+							local argsLeave = {
+								[1] = {
+									[1] = {
+										["Event"] = "LeaveDungeon"
+									},
+									[2] = "\4"
+								}
+							}
+							ReplicatedStorage:WaitForChild("BridgeNet2"):WaitForChild("dataRemoteEvent"):FireServer(unpack(argsLeave))
+							
+							wait(1) -- รอเซิร์ฟเวอร์ประมวลผล
+						end
+						wait(1)
+					end
+				end)
+			end
+		end,
+	})
 
 	local DungeontTab = Window:CreateTab("Dungeont", 4483362458)
 	local DungeontSection = DungeontTab:CreateSection("Dungeont Settings")
