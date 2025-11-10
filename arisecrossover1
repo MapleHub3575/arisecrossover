@@ -294,72 +294,100 @@
 	})
 
 	local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local player = Players.LocalPlayer
-local BridgeEvent = ReplicatedStorage:WaitForChild("BridgeNet2"):WaitForChild("dataRemoteEvent")
+	local ReplicatedStorage = game:GetService("ReplicatedStorage")
+	local player = Players.LocalPlayer
+	local BridgeEvent = ReplicatedStorage:WaitForChild("BridgeNet2"):WaitForChild("dataRemoteEvent")
 
-local WeaponSection = INFOSTab:CreateSection("Auto Sell Weapon Settings")
+	local WeaponSection = INFOSTab:CreateSection("Auto Sell Weapon Settings")
 
-local AutoSellEnabled = false
-local connection
+	local AutoSellEnabled = false
+	local checkLoop
 
-INFOSTab:CreateToggle({
-    Name = "Auto Sell Weapons (Level 1-13)",
-    CurrentValue = false,
-    Flag = "AutoSellWeapons",
-    Callback = function(Value)
-        AutoSellEnabled = Value
+	-- ฟังก์ชันรอ Attribute Level โหลด
+	local function waitForLevel(weapon)
+		local level
+		repeat
+			task.wait(0.1)
+			level = weapon:GetAttribute("Level")
+		until level ~= nil or not AutoSellEnabled
+		return level or 0
+	end
 
-        if AutoSellEnabled then
-            local weaponsFolder = player:WaitForChild("leaderstats"):WaitForChild("Inventory"):WaitForChild("Weapons")
-           
-            -- ฟังก์ชันขายอาวุธหลายอันพร้อมกัน
-            local function sellLowLevelWeapons(weapons)
-                if not AutoSellEnabled then return end
-                local weaponsToSell = {}
+	-- ฟังก์ชันขายอาวุธ
+	local function sellLowLevelWeapons(weapons)
+		if not AutoSellEnabled then return end
+		local weaponsToSell = {}
 
-                for _, weapon in ipairs(weapons) do
-                    if weapon and weapon:IsA("Folder") then
-                        local levelValue = weapon:GetAttribute("Level")
-                        if typeof(levelValue) == "number" and levelValue >= 1 and levelValue <= 13 then
-                            table.insert(weaponsToSell, weapon.Name)
-                        end
-                    end
-                end
+		for _, weapon in ipairs(weapons) do
+			if weapon and weapon:IsA("Folder") then
+				local level = weapon:GetAttribute("Level") or 0
+				if level >= 1 and level <= 13 then
+					table.insert(weaponsToSell, weapon.Name)
+				end
+			end
+		end
 
-                if #weaponsToSell > 0 then
-                    local args = {
-                        [1] = {
-                            [1] = {
-                                ["Event"] = "WeaponAction",
-                                ["Weapons"] = weaponsToSell,
-                                ["Action"] = "Sell"
-                            },
-                            [2] = "\004"
-                        }
-                    }
-                    BridgeEvent:FireServer(unpack(args))
-                end
-            end
+		if #weaponsToSell > 0 then
+			local args = {
+				[1] = {
+					[1] = {
+						Event = "WeaponAction",
+						Weapons = weaponsToSell,
+						Action = "Sell"
+					},
+					[2] = "\004"
+				}
+			}
+			BridgeEvent:FireServer(unpack(args))
+		end
+	end
 
-            -- ขายอาวุธที่มีอยู่แล้ว
-            sellLowLevelWeapons(weaponsFolder:GetChildren())
+	-- ฟังก์ชันตรวจสอบทุกอาวุธทุก 5 วินาที
+	local function startAutoSellLoop()
+		if checkLoop then return end
+		checkLoop = task.spawn(function()
+			local weaponsFolder = player:WaitForChild("leaderstats"):WaitForChild("Inventory"):WaitForChild("Weapons")
 
-            -- ตรวจจับอาวุธใหม่
-            connection = weaponsFolder.ChildAdded:Connect(function(weapon)
-                task.wait(0.5) -- รอ Attributes โหลดก่อน
-                sellLowLevelWeapons({weapon}) -- ขายอาวุธใหม่ พร้อมกัน
-            end)
+			while AutoSellEnabled do
+				local weapons = weaponsFolder:GetChildren()
+				local readyWeapons = {}
 
-        else
-            if connection then
-                connection:Disconnect()
-                connection = nil
-            end
-        end
-    end,
-})
+				-- ตรวจสอบทุกอาวุธ
+				for _, weapon in ipairs(weapons) do
+					task.spawn(function()
+						local level = waitForLevel(weapon)
+						if level >= 1 and level <= 13 then
+							table.insert(readyWeapons, weapon)
+						end
+					end)
+				end
 
+				-- รอให้ทุก task ตรวจสอบ Level เสร็จ
+				task.wait(0.5)
+
+				-- ขายอาวุธที่พร้อม
+				sellLowLevelWeapons(readyWeapons)
+
+				task.wait(5) -- ตรวจสอบซ้ำทุก 5 วินาที
+			end
+			checkLoop = nil
+		end)
+	end
+
+	-- Toggle GUI
+	INFOSTab:CreateToggle({
+		Name = "Auto Sell Weapons (Level E-GM)",
+		CurrentValue = false,
+		Flag = "AutoSellWeapons",
+		Callback = function(Value)
+			AutoSellEnabled = Value
+			if AutoSellEnabled then
+				startAutoSellLoop()
+			else
+				AutoSellEnabled = false
+			end
+		end,
+	})
 
 
 	local MainTab = Window:CreateTab("Main", 4483362458) -- ชื่อ tab + ไอคอน
