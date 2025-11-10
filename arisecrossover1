@@ -309,12 +309,10 @@ INFOSTab:CreateToggle({
     Flag = "AutoSellWeapons",
     Callback = function(Value)
         AutoSellEnabled = Value
-        print("AutoSellEnabled =", AutoSellEnabled)
 
         if AutoSellEnabled then
             local weaponsFolder = player:WaitForChild("leaderstats"):WaitForChild("Inventory"):WaitForChild("Weapons")
-            print("Weapons folder loaded:", weaponsFolder)
-
+           
             -- ฟังก์ชันขายอาวุธหลายอันพร้อมกัน
             local function sellLowLevelWeapons(weapons)
                 if not AutoSellEnabled then return end
@@ -330,7 +328,6 @@ INFOSTab:CreateToggle({
                 end
 
                 if #weaponsToSell > 0 then
-                    print("Selling weapons:", table.concat(weaponsToSell, ", "))
                     local args = {
                         [1] = {
                             [1] = {
@@ -358,7 +355,6 @@ INFOSTab:CreateToggle({
             if connection then
                 connection:Disconnect()
                 connection = nil
-                print("AutoSell Disabled, connection disconnected")
             end
         end
     end,
