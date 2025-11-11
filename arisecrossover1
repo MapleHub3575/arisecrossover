@@ -746,20 +746,19 @@
 		end,
 	})
 
-	-- Toggle สำหรับ Auto ReJoin (WaveEpoch = 51) – ออกเฉย ๆ
-	-- ตั้งค่า Wave ที่จะให้รีจอย
+	-- ตั้งค่า Wave ที่จะให้ออก
 	local targetWave = 51
 
 	EvenTab:CreateToggle({
-		Name = "Auto ReJoin",
+		Name = "Auto Exit",
 		CurrentValue = false,
-		Flag = "AutoReJoinBoss",
+		Flag = "AutoExitBoss",
 		Callback = function(Value)
-			AutoReJoin = Value
+			AutoExit = Value
 
-			if AutoReJoin then
+			if AutoExit then
 				task.spawn(function()
-					while AutoReJoin do
+					while AutoExit do
 						local success, wave = pcall(getWaveEpoch)
 						if success and wave and wave >= targetWave then
 							local bridge = ReplicatedStorage:WaitForChild("BridgeNet2"):WaitForChild("dataRemoteEvent")
@@ -773,37 +772,13 @@
 							}
 							bridge:FireServer(unpack(argsLeave))
 
+							-- รอให้ออกจาก BossRush จริงก่อนจะหยุด loop
 							repeat
 								task.wait(2)
-							until not Workspace:FindFirstChild("BossRushMap") -- รอออกจริง
+							until not Workspace:FindFirstChild("BossRushMap")
 
-							-- 🔁 สร้าง BossRush ใหม่
-							local argsCreate = {
-								[1] = {
-									[1] = {
-										["Event"] = "BossRushAction",
-										["Action"] = "Create"
-									},
-									[2] = "\4"
-								}
-							}
-							bridge:FireServer(unpack(argsCreate))
-							task.wait(3)
-
-							-- ▶️ เริ่ม BossRush ใหม่
-							local argsStart = {
-								[1] = {
-									[1] = {
-										["Action"] = "Start",
-										["Diff"] = "Insane",
-										["Event"] = "BossRushAction"
-									},
-									[2] = "\4"
-								}
-							}
-							bridge:FireServer(unpack(argsStart))
-
-							task.wait(15) -- เว้นระยะก่อนเช็คอีกครั้ง
+							-- หยุดทำงาน (ให้ AutoJoin ทำต่อเอง)
+							break
 						end
 
 						task.wait(1)
