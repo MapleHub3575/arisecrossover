@@ -747,30 +747,53 @@
 	})
 
 	-- Toggle สำหรับ Auto ReJoin (WaveEpoch = 51) – ออกเฉย ๆ
+	-- ตั้งค่า Wave ที่จะให้รีจอย
+	local targetWave = 51
+
 	EvenTab:CreateToggle({
 		Name = "Auto ReJoin",
 		CurrentValue = false,
 		Flag = "AutoReJoinBoss",
 		Callback = function(Value)
 			AutoReJoin = Value
+
 			if AutoReJoin then
 				spawn(function()
 					while AutoReJoin do
 						local wave = getWaveEpoch()
-						if wave >= 51 then
-							-- Leave Dungeon
-							local argsLeave = {
+
+						-- ถ้าถึง Wave ที่กำหนด
+						if wave >= targetWave then
+							-- 🔁 สร้าง BossRush ใหม่
+							local argsCreate = {
 								[1] = {
 									[1] = {
-										["Event"] = "LeaveDungeon"
+										["Event"] = "BossRushAction",
+										["Action"] = "Create"
 									},
 									[2] = "\4"
 								}
 							}
-							ReplicatedStorage:WaitForChild("BridgeNet2"):WaitForChild("dataRemoteEvent"):FireServer(unpack(argsLeave))
+							ReplicatedStorage:WaitForChild("BridgeNet2"):WaitForChild("dataRemoteEvent"):FireServer(unpack(argsCreate))
 							
-							wait(1) -- รอเซิร์ฟเวอร์ประมวลผล
+							wait(2)
+
+							-- ▶️ เริ่ม BossRush ใหม่
+							local argsStart = {
+								[1] = {
+									[1] = {
+										["Action"] = "Start",
+										["Diff"] = "Insane", -- ปรับระดับความยากได้
+										["Event"] = "BossRushAction"
+									},
+									[2] = "\4"
+								}
+							}
+							ReplicatedStorage:WaitForChild("BridgeNet2"):WaitForChild("dataRemoteEvent"):FireServer(unpack(argsStart))
+							
+							wait(10) -- หน่วงก่อนเช็คอีกรอบ
 						end
+
 						wait(1)
 					end
 				end)
