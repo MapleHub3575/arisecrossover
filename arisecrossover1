@@ -758,12 +758,25 @@
 			AutoReJoin = Value
 
 			if AutoReJoin then
-				spawn(function()
+				task.spawn(function()
 					while AutoReJoin do
-						local wave = getWaveEpoch()
+						local success, wave = pcall(getWaveEpoch)
+						if success and wave and wave >= targetWave then
+							local bridge = ReplicatedStorage:WaitForChild("BridgeNet2"):WaitForChild("dataRemoteEvent")
 
-						-- ถ้าถึง Wave ที่กำหนด
-						if wave >= targetWave then
+							-- 🚪 ออกจากดันเจี้ยน
+							local argsLeave = {
+								[1] = {
+									[1] = { ["Event"] = "LeaveDungeon" },
+									[2] = "\4"
+								}
+							}
+							bridge:FireServer(unpack(argsLeave))
+
+							repeat
+								task.wait(2)
+							until not Workspace:FindFirstChild("BossRushMap") -- รอออกจริง
+
 							-- 🔁 สร้าง BossRush ใหม่
 							local argsCreate = {
 								[1] = {
@@ -774,27 +787,26 @@
 									[2] = "\4"
 								}
 							}
-							ReplicatedStorage:WaitForChild("BridgeNet2"):WaitForChild("dataRemoteEvent"):FireServer(unpack(argsCreate))
-							
-							wait(2)
+							bridge:FireServer(unpack(argsCreate))
+							task.wait(3)
 
 							-- ▶️ เริ่ม BossRush ใหม่
 							local argsStart = {
 								[1] = {
 									[1] = {
 										["Action"] = "Start",
-										["Diff"] = "Insane", -- ปรับระดับความยากได้
+										["Diff"] = "Insane",
 										["Event"] = "BossRushAction"
 									},
 									[2] = "\4"
 								}
 							}
-							ReplicatedStorage:WaitForChild("BridgeNet2"):WaitForChild("dataRemoteEvent"):FireServer(unpack(argsStart))
-							
-							wait(10) -- หน่วงก่อนเช็คอีกรอบ
+							bridge:FireServer(unpack(argsStart))
+
+							task.wait(15) -- เว้นระยะก่อนเช็คอีกครั้ง
 						end
 
-						wait(1)
+						task.wait(1)
 					end
 				end)
 			end
