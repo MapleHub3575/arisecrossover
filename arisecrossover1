@@ -581,6 +581,7 @@
 		{Name = "Ghoul City", Position = Vector3.new(2589.732177734375, 91.97673797607422, -4194.45068359375)},
 		{Name = "Eminance Kingdom", Position = Vector3.new(-4194.46240234375, 120.6724624633789, 4690.453125)},
 		{Name = "Monach City", Position = Vector3.new(3715.7470703125, 128.0664520263672, 3817.377685546875)},
+		{Name = "Deadly Kingdom", Position = Vector3.new(1712.84423828125, 237.52743530273438, -7389.501953125)},
 	}
 
 	for _, world in ipairs(World2Positions) do
