@@ -737,7 +737,7 @@
 				-- เริ่ม Dungeon
 				local argsStart = {
 					[1] = {
-						[1] = {["Event"] = "BossRushAction", ["Action"] = "Start", ["Diff"] = "hard"},
+						[1] = {["Event"] = "BossRushAction", ["Action"] = "Start", ["Diff"] = "Hard"},
 						[2] = "\4"
 					}
 				}
@@ -748,7 +748,7 @@
 })
 
 	-- ตั้งค่า Wave ที่จะให้ออก
-	local targetWave = 91
+	local targetWave = 53
 
 	EvenTab:CreateToggle({
 		Name = "Auto Exit",
