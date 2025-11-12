@@ -748,7 +748,7 @@
 })
 
 	-- ตั้งค่า Wave ที่จะให้ออก
-	local targetWave = 90
+	local targetWave = 51
 
 	EvenTab:CreateToggle({
 		Name = "Auto Exit",
