@@ -1230,5 +1230,79 @@
 		end,
 	})
 
+	--// สร้างแท็บ RAID
+	local RAIDTab = Window:CreateTab("🏠 RAID", 4483362458)
+
+	-- ตัวแปรควบคุมระบบ
+	local AutoRaidEnabled = false
+
+	-- สร้าง Toggle เปิด/ปิดระบบ
+	RAIDTab:CreateToggle({
+		Name = "Next Room",
+		CurrentValue = false,
+		Flag = "NextRoomRaid",
+		Callback = function(Value)
+			AutoRaidEnabled = Value
+
+			if Value then
+				-- เริ่มระบบวาปอัตโนมัติ
+				task.spawn(function()
+					local Players = game:GetService("Players")
+					local player = Players.LocalPlayer
+					local character = player.Character or player.CharacterAdded:Wait()
+
+					local world = workspace:WaitForChild("__Main"):WaitForChild("__World")
+
+					-- ฟังก์ชันหาห้องที่มีเลขมากที่สุด
+					local function getHighestRoomNumber()
+						local maxNum = 0
+						for _, room in pairs(world:GetChildren()) do
+							local num = tonumber(room.Name:match("%d+"))
+							if num and num > maxNum then
+								maxNum = num
+							end
+						end
+						return maxNum
+					end
+
+					local currentRoomNumber = getHighestRoomNumber()
+
+					-- ฟังการเพิ่มห้องใหม่
+					world.ChildAdded:Connect(function(newRoom)
+						if not AutoRaidEnabled then return end -- ถ้าปิด toggle แล้วไม่ทำงาน
+
+						local num = tonumber(newRoom.Name:match("%d+"))
+						if num and num == currentRoomNumber + 1 then
+							task.wait(1.5)
+
+							local tpCFrame
+
+							if newRoom:IsA("Model") then
+								if not newRoom.PrimaryPart then
+									for _, p in pairs(newRoom:GetDescendants()) do
+										if p:IsA("BasePart") then
+											tpCFrame = p.CFrame
+											break
+										end
+									end
+								else
+									tpCFrame = newRoom.PrimaryPart.CFrame
+								end
+							elseif newRoom:IsA("BasePart") then
+								tpCFrame = newRoom.CFrame
+							end
+
+							if tpCFrame then
+								character:PivotTo(tpCFrame + Vector3.new(0, 5, 0))
+								currentRoomNumber = num
+
+							end
+						end
+					end)
+				end)
+			end
+		end,
+	})
+
 	-- 🧠 โหลด config กลับมา
 	Rayfield:LoadConfiguration()
