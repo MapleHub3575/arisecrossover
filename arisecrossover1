@@ -356,7 +356,7 @@
 				for _, weapon in ipairs(weapons) do
 					task.spawn(function()
 						local level = waitForLevel(weapon)
-						if level >= 1 and level <= 13 then
+						if level >= 1 and level <= 14 then
 							table.insert(readyWeapons, weapon)
 						end
 					end)
