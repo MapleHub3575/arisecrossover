@@ -726,7 +726,7 @@
 				local argsCreate = {
 					[1] = {
 						[1] = {["Event"] = "BossRushAction", ["Action"] = "Create"},
-						[2] = "\4"
+						[2] = "\16"
 					}
 				}
 				DataRemote:FireServer(unpack(argsCreate))
@@ -738,7 +738,7 @@
 				local argsStart = {
 					[1] = {
 						[1] = {["Event"] = "BossRushAction", ["Action"] = "Start", ["Diff"] = "Hard"},
-						[2] = "\4"
+						[2] = "\16"
 					}
 				}
 				DataRemote:FireServer(unpack(argsStart))
@@ -768,7 +768,7 @@
 							local argsLeave = {
 								[1] = {
 									[1] = { ["Event"] = "LeaveDungeon" },
-									[2] = "\4"
+									[2] = "\16"
 								}
 							}
 							bridge:FireServer(unpack(argsLeave))
@@ -1121,7 +1121,7 @@
 					["Event"] = "DungeonAction",
 					["Action"] = "BuyTicket"
 				},
-				[2] = "\4"
+				[2] = "\16"
 			}
 		}
 		Remote:FireServer(unpack(args))
@@ -1134,7 +1134,7 @@
 					["Event"] = "DungeonAction",
 					["Action"] = "Create"
 				},
-				[2] = "\4"
+				[2] = "\16"
 			}
 		}
 		Remote:FireServer(unpack(args))
@@ -1147,7 +1147,7 @@
 					["Event"] = "DungeonAction",
 					["Action"] = "Start"
 				},
-				[2] = "\4"
+				[2] = "\16"
 			}
 		}
 		Remote:FireServer(unpack(args))
