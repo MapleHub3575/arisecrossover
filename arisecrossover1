@@ -335,7 +335,7 @@
 						Weapons = weaponsToSell,
 						Action = "Sell"
 					},
-					[2] = "\004"
+					[2] = "\16"
 				}
 			}
 			BridgeEvent:FireServer(unpack(args))
