@@ -258,14 +258,14 @@
 					if not AutoSellEnabled then return end
 					if pet and pet:IsA("Folder") then
 						local rankValue = pet:GetAttribute("Rank")
-						if typeof(rankValue) == "number" and rankValue >= 1 and rankValue <= 17 then
+						if typeof(rankValue) == "number" and rankValue >= 1 and rankValue <= 18 then
 							local args = {
 								[1] = {
 									[1] = {
 										["Event"] = "SellPet",
 										["Pets"] = { pet.Name }
 									},
-									[2] = "\a"
+									[2] = "\6"
 								}
 							}
 							BridgeEvent:FireServer(unpack(args))
@@ -356,7 +356,7 @@
 				for _, weapon in ipairs(weapons) do
 					task.spawn(function()
 						local level = waitForLevel(weapon)
-						if level >= 1 and level <= 14 then
+						if level >= 1 and level <= 18 then
 							table.insert(readyWeapons, weapon)
 						end
 					end)
