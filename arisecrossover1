@@ -334,7 +334,7 @@
 
 	-- กำหนดช่วง Level/Rank ที่จะขาย
 	local MinLevel = 1
-	local MaxLevel = 18
+	local MaxLevel = 17
 	local startRankName = RankName[MinLevel] or MinLevel
 	local endRankName = RankName[MaxLevel] or MaxLevel
 
