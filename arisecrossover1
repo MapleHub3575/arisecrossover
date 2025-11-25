@@ -16,6 +16,30 @@
 		KeySystem = false
 	})
 
+	-- Rank List
+	local RankName = {
+		[1] = "E",
+		[2] = "D",
+		[3] = "C",
+		[4] = "B",
+		[5] = "A",
+		[6] = "S",
+		[7] = "SS",
+		[8] = "G",
+		[9] = "N",
+		[10] = "N+",
+		[11] = "M",
+		[12] = "M+",
+		[13] = "GM",
+		[14] = "GM+",
+		[15] = "UGM",
+		[16] = "UGM+",
+		[17] = "HGM",
+		[18] = "HGM+",
+		[19] = "R",
+		[20] = "R+"
+	}
+
 	local INFOSTab = Window:CreateTab("INFOS", 4483362458)
 	local INFOSSection = INFOSTab:CreateSection("INFOS Settings")
 
@@ -227,13 +251,21 @@
 	local player = Players.LocalPlayer
 	local BridgeEvent = ReplicatedStorage:WaitForChild("BridgeNet2"):WaitForChild("dataRemoteEvent")
 
+	-- กำหนดช่วง Rank ที่ต้องการขาย
+	local MinRank = 1    -- Rank เริ่มต้น (E)
+	local MaxRank = 18   -- Rank สูงสุด (HGM+)
+
+	-- ดึงชื่อ Rank สำหรับแสดงใน Toggle
+	local startRankName = RankName[MinRank] or MinRank
+	local endRankName = RankName[MaxRank] or MaxRank
+
 	local SellpetSection = INFOSTab:CreateSection("Auto Sell Settings")
 
 	local AutoSellEnabled = false
-	local connection -- ไว้เก็บ event เพื่อหยุดตอนปิดระบบ
+	local connection
 
 	INFOSTab:CreateToggle({
-		Name = "Auto Sell (Rank E-HUM)",
+		Name = "Auto Sell (Rank " .. startRankName .. "–" .. endRankName .. ")",
 		CurrentValue = false,
 		Flag = "AutoSell",
 		Callback = function(Value)
@@ -253,12 +285,12 @@
 					return
 				end
 
-				-- ฟังก์ชันขาย pet ที่ rank 1–10
+				-- ฟังก์ชันขาย Pet ตามช่วง Rank
 				local function sellLowRankPets(pet)
 					if not AutoSellEnabled then return end
 					if pet and pet:IsA("Folder") then
 						local rankValue = pet:GetAttribute("Rank")
-						if typeof(rankValue) == "number" and rankValue >= 1 and rankValue <= 18 then
+						if typeof(rankValue) == "number" and rankValue >= MinRank and rankValue <= MaxRank then
 							local args = {
 								[1] = {
 									[1] = {
@@ -269,20 +301,20 @@
 								}
 							}
 							BridgeEvent:FireServer(unpack(args))
+							print("ขาย Pet:", pet.Name, "| Rank:", RankName[rankValue] or rankValue)
 						end
 					end
 				end
 
-				-- ขาย pet ที่มีอยู่แล้ว (ถ้ามี)
+				-- ขาย Pet ที่มีอยู่แล้ว
 				for _, pet in ipairs(petsFolder:GetChildren()) do
 					sellLowRankPets(pet)
 				end
 
-				-- ตรวจทุกครั้งที่มี pet ใหม่เพิ่มเข้ามา
+				-- ขายทุกครั้งที่มี Pet ใหม่เข้ามา
 				connection = petsFolder.ChildAdded:Connect(function(pet)
 					sellLowRankPets(pet)
 				end)
-
 			else
 				-- ปิดระบบ auto sell
 				if connection then
@@ -299,6 +331,12 @@
 	local BridgeEvent = ReplicatedStorage:WaitForChild("BridgeNet2"):WaitForChild("dataRemoteEvent")
 
 	local WeaponSection = INFOSTab:CreateSection("Auto Sell Weapon Settings")
+
+	-- กำหนดช่วง Level/Rank ที่จะขาย
+	local MinLevel = 1
+	local MaxLevel = 18
+	local startRankName = RankName[MinLevel] or MinLevel
+	local endRankName = RankName[MaxLevel] or MaxLevel
 
 	local AutoSellEnabled = false
 	local checkLoop
@@ -321,8 +359,9 @@
 		for _, weapon in ipairs(weapons) do
 			if weapon and weapon:IsA("Folder") then
 				local level = weapon:GetAttribute("Level") or 0
-				if level >= 1 and level <= 13 then
+				if level >= MinLevel and level <= MaxLevel then
 					table.insert(weaponsToSell, weapon.Name)
+					print("ขาย Weapon:", weapon.Name, "| Level:", level, "| Rank:", RankName[level] or level)
 				end
 			end
 		end
@@ -356,7 +395,7 @@
 				for _, weapon in ipairs(weapons) do
 					task.spawn(function()
 						local level = waitForLevel(weapon)
-						if level >= 1 and level <= 18 then
+						if level >= MinLevel and level <= MaxLevel then
 							table.insert(readyWeapons, weapon)
 						end
 					end)
@@ -376,7 +415,7 @@
 
 	-- Toggle GUI
 	INFOSTab:CreateToggle({
-		Name = "Auto Sell Weapons (Level E-GM)",
+		Name = "Auto Sell Weapons (Level " .. startRankName .. "–" .. endRankName .. ")",
 		CurrentValue = false,
 		Flag = "AutoSellWeapons",
 		Callback = function(Value)
@@ -388,7 +427,6 @@
 			end
 		end,
 	})
-
 
 	local MainTab = Window:CreateTab("Main", 4483362458) -- ชื่อ tab + ไอคอน
 	local MainSection = MainTab:CreateSection("Farming Settings")
@@ -466,25 +504,6 @@
 				print("Auto Farm On")
 			else
 				print("Auto Farm Off")
-			end
-		end,
-	})
-
-	local ReplicatedStorage = game:GetService("ReplicatedStorage")
-	local WepetEvent = ReplicatedStorage.__Assets.WepetEvent
-
-	MainTab:CreateToggle({
-		Name = "Auto Click",
-		CurrentValue = false,
-		Flag = "AutoClick",
-		Callback = function(Value)
-			print("สถานะ:", Value)
-			if Value then
-				-- เปิด AutoClick
-				WepetEvent:Fire("AutoClick")
-			else
-				-- ปิด AutoClick (ถ้ามีระบบปิดในเกม)
-				WepetEvent:Fire("AutoClick") -- บางเกม toggle เดียวกันกดซ้ำเพื่อปิด
 			end
 		end,
 	})
